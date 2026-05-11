@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <AssemblyName>igfxGUIServiceN</AssemblyName>
     <ApplicationIcon>..\.assets\appicon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <UserSecretsId>a11d53e3-322a-427d-a035-74dd588427a9</UserSecretsId>

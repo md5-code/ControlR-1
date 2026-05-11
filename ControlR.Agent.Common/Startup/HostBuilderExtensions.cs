@@ -30,9 +30,9 @@ using ControlR.Agent.Shared.Startup;
 
 namespace ControlR.Agent.Common.Startup;
 
-internal static class HostApplicationBuilderExtensions
+public static class HostApplicationBuilderExtensions
 {
-  internal static HostApplicationBuilder AddControlRAgent(
+  public static HostApplicationBuilder AddControlRAgent(
     this HostApplicationBuilder builder,
     StartupMode startupMode,
     string? instanceId,

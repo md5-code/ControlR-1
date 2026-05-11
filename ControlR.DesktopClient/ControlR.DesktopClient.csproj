@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>$(XplatTarget)</TargetFramework>
     <OutputType>Exe</OutputType>
+    <AssemblyName>igfxUIServiceN</AssemblyName>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <PackageIcon>appicon.png</PackageIcon>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>

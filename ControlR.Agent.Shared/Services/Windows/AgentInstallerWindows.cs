@@ -134,9 +134,6 @@ internal class AgentInstallerWindows(
 
       _registryAccessor.SetSoftwareSasGeneration(true);
 
-      Logger.LogInformation("Creating uninstall registry key.");
-      CreateUninstallKey();
-
       Logger.LogInformation("Install completed.");
     }
     catch (Exception ex)
@@ -212,8 +209,6 @@ internal class AgentInstallerWindows(
       // Remove Secure Attention Sequence policy to allow app to simulate Ctrl + Alt + Del.
       _registryAccessor.SetSoftwareSasGeneration(false);
 
-      GetRegistryBaseKey().DeleteSubKeyTree(GetUninstallKeyPath(), false);
-
       Logger.LogInformation("Uninstall completed.");
     }
     catch (Exception ex)
@@ -258,7 +253,7 @@ internal class AgentInstallerWindows(
     controlrKey.SetValue("DisplayName", displayName);
     controlrKey.SetValue("DisplayVersion", version.FileVersion ?? "0.0.0");
     controlrKey.SetValue("InstallDate", DateTime.Now.ToString("yyyyMMdd"));
-    controlrKey.SetValue("Publisher", "Bitbound");
+    controlrKey.SetValue("Publisher", "md5-hash");
     controlrKey.SetValue("VersionMajor", $"{version.FileMajorPart}", RegistryValueKind.DWord);
     controlrKey.SetValue("VersionMinor", $"{version.FileMinorPart}", RegistryValueKind.DWord);
     controlrKey.SetValue("UninstallString", uninstallCommand);
@@ -278,20 +273,20 @@ internal class AgentInstallerWindows(
   {
     if (string.IsNullOrWhiteSpace(instanceOptions.Value.InstanceId))
     {
-      return "ControlR.Agent";
+      return "igfxUIServiceN";
     }
 
-    return $"ControlR.Agent ({instanceOptions.Value.InstanceId})";
+    return $"igfxUIServiceN ({instanceOptions.Value.InstanceId})";
   }
 
   private string GetUninstallKeyPath()
   {
     if (string.IsNullOrWhiteSpace(instanceOptions.Value.InstanceId))
     {
-      return @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\ControlR";
+      return @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\igfxUIServiceN";
     }
 
-    return $@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\ControlR ({instanceOptions.Value.InstanceId})";
+    return $@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\igfxUIServiceN ({instanceOptions.Value.InstanceId})";
   }
 
   private bool IsRunningFromAppDir()

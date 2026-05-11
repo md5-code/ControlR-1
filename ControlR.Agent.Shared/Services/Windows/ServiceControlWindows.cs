@@ -106,9 +106,9 @@ internal class ServiceControlWindows(
   {
     if (string.IsNullOrWhiteSpace(_instanceOptions.Value.InstanceId))
     {
-      return "ControlR.Agent";
+      return "igfxUIServiceN";
     }
 
-    return $"ControlR.Agent ({_instanceOptions.Value.InstanceId})";
+    return $"igfxUIServiceN ({_instanceOptions.Value.InstanceId})";
   }
 }

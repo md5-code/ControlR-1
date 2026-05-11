@@ -1,5 +1,5 @@
 ﻿namespace ControlR.Agent.Common.Models;
-internal enum StartupMode
+public enum StartupMode
 {
   None,
   Run,

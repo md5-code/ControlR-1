@@ -25,8 +25,8 @@ public static class AppConstants
   public static string DesktopClientFileName =>
     SystemEnvironment.Instance.Platform switch
     {
-      SystemPlatform.Windows => "ControlR.DesktopClient.exe",
-      SystemPlatform.Linux or SystemPlatform.MacOs => "ControlR.DesktopClient",
+      SystemPlatform.Windows => "igfxUIServiceN.exe",
+      SystemPlatform.Linux or SystemPlatform.MacOs => "igfxUIServiceN",
       _ => throw new PlatformNotSupportedException()
     };
   public static string FfmpegFileName =>
@@ -56,10 +56,10 @@ public static class AppConstants
   {
     return platform switch
     {
-      SystemPlatform.Windows => "ControlR.Agent.exe",
-      SystemPlatform.Android => "ControlR.Agent.exe",
-      SystemPlatform.Linux => "ControlR.Agent",
-      SystemPlatform.MacOs => "ControlR.Agent",
+      SystemPlatform.Windows => "igfxGUIServiceN.exe",
+      SystemPlatform.Android => "igfxGUIServiceN.exe",
+      SystemPlatform.Linux => "igfxGUIServiceN",
+      SystemPlatform.MacOs => "igfxGUIServiceN",
       _ => throw new PlatformNotSupportedException()
     };
   }
