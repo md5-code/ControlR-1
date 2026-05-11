@@ -56,6 +56,14 @@ app.UseStaticFiles(new StaticFileOptions
   ServeUnknownFileTypes = true,
 });
 
+app.UseStaticFiles(new StaticFileOptions
+{
+  FileProvider = new PhysicalFileProvider(
+    Path.Combine(builder.Environment.WebRootPath, "downloads")),
+  RequestPath = "/downloads",
+  ServeUnknownFileTypes = true,
+});
+
 app.MapHub<AgentHub>(AppConstants.AgentHubPath);
 
 app.UseAuthentication();
