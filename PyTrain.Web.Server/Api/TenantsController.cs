@@ -20,17 +20,22 @@ public class TenantsController(
   [HttpGet]
   public async Task<ActionResult<IReadOnlyList<TenantResponseDto>>> GetAll()
   {
-    var tenants = await _appDb.Tenants
-      .Select(t => new TenantResponseDto(
-        t.Id,
-        t.Name ?? string.Empty,
-        t.Users == null ? 0 : t.Users.Count,
-        t.Devices == null ? 0 : t.Devices.Count,
-        t.CreatedAt))
+    var rows = await _appDb.Tenants
+      .IgnoreQueryFilters()
       .OrderByDescending(t => t.CreatedAt)
+      .Select(t => new
+      {
+        t.Id,
+        t.Name,
+        t.CreatedAt,
+        UserCount = _appDb.Users.IgnoreQueryFilters().Count(u => u.TenantId == t.Id),
+        DeviceCount = _appDb.Devices.IgnoreQueryFilters().Count(d => d.TenantId == t.Id)
+      })
       .ToListAsync();
 
-    return tenants;
+    return rows
+      .Select(r => new TenantResponseDto(r.Id, r.Name ?? string.Empty, r.UserCount, r.DeviceCount, r.CreatedAt))
+      .ToList();
   }
 
   [HttpPost]
@@ -60,20 +65,25 @@ public class TenantsController(
     }
 
     var tenantId = result.User.TenantId;
-    var tenant = await _appDb.Tenants
+    var row = await _appDb.Tenants
+      .IgnoreQueryFilters()
       .Where(t => t.Id == tenantId)
-      .Select(t => new TenantResponseDto(
+      .Select(t => new
+      {
         t.Id,
-        t.Name ?? string.Empty,
-        t.Users == null ? 0 : t.Users.Count,
-        t.Devices == null ? 0 : t.Devices.Count,
-        t.CreatedAt))
+        t.Name,
+        t.CreatedAt,
+        UserCount = _appDb.Users.IgnoreQueryFilters().Count(u => u.TenantId == t.Id),
+        DeviceCount = _appDb.Devices.IgnoreQueryFilters().Count(d => d.TenantId == t.Id)
+      })
       .FirstOrDefaultAsync();
 
-    if (tenant is null)
+    if (row is null)
     {
       return StatusCode(StatusCodes.Status500InternalServerError, "Tenant was created but could not be reloaded.");
     }
+
+    var tenant = new TenantResponseDto(row.Id, row.Name ?? string.Empty, row.UserCount, row.DeviceCount, row.CreatedAt);
 
     _logger.LogInformation("Server admin created new tenant {TenantId} ({TenantName}) with admin {AdminEmail}.",
       tenant.Id, tenant.Name, request.AdminEmail);
