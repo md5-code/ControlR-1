@@ -1,0 +1,8 @@
+{
+    email muhammadshemeers12@gmail.com
+}
+
+pytrain.com {
+    encode zstd gzip
+    reverse_proxy controlr:8080
+}

@@ -1,0 +1,19 @@
+name: controlr
+
+services:
+  controlr:
+    image: controlr:local
+    build:
+      context: ../
+      dockerfile: ControlR.Web.Server/Dockerfile
+    ports: !reset []
+    environment:
+      ControlR_AppOptions__EnablePublicRegistration: "true"
+      ControlR_AppOptions__RequireUserEmailConfirmation: "false"
+      ControlR_AppOptions__DisableEmailSending: "true"
+      ControlR_AppOptions__EnableNetworkTrust: "true"
+      ControlR_AppOptions__AuthenticatorIssuerName: "PyTrain"
+
+  aspire:
+    ports: !override
+      - "127.0.0.1:18888:18888"
