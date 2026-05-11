@@ -4,5 +4,5 @@
 
 pytrain.com {
     encode zstd gzip
-    reverse_proxy controlr:8080
+    reverse_proxy pytrain:8080
 }

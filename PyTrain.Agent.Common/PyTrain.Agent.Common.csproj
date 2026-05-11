@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<ItemGroup>
+		<PackageReference Include="Bitbound.SimpleMessenger" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Systemd" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" />
+		<PackageReference Include="Microsoft.PowerShell.SDK" />
+		<PackageReference Include="Microsoft.Security.Extensions" />
+		<PackageReference Include="System.Diagnostics.PerformanceCounter" />
+		<PackageReference Update="Bitbound.Analyzers.MemberOrder">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\PyTrain.Agent.Shared\PyTrain.Agent.Shared.csproj" />
+		<ProjectReference Include="..\PyTrain.ApiClient\PyTrain.ApiClient.csproj" />
+		<ProjectReference Include="..\PyTrain.Web.ServiceDefaults\PyTrain.Web.ServiceDefaults.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.Ipc\PyTrain.Libraries.Ipc.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.Messenger.Extensions\PyTrain.Libraries.Messenger.Extensions.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.NativeInterop.Linux\PyTrain.Libraries.NativeInterop.Linux.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.NativeInterop.Windows\PyTrain.Libraries.NativeInterop.Windows.csproj" />
+    <ProjectReference Include="..\Libraries\PyTrain.Libraries.Serilog\PyTrain.Libraries.Serilog.csproj" />
+    <ProjectReference Include="..\Libraries\PyTrain.Libraries.Hosting\PyTrain.Libraries.Hosting.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.Signalr.Client\PyTrain.Libraries.Signalr.Client.csproj" />
+	</ItemGroup>
+</Project>

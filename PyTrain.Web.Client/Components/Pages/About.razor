@@ -1,0 +1,129 @@
+﻿@using System.Reflection
+@attribute [Route(ClientRoutes.About)]
+@inject ILogger<About> Logger
+@inject ISnackbar Snackbar
+
+<PageTitle>About</PageTitle>
+
+<PrimaryTitle>
+  About
+</PrimaryTitle>
+
+<div class="about-grid">
+  <div>
+    <MudText Color="Color.Primary">
+      Version:
+    </MudText>
+  </div>
+  <div class="d-flex align-start">
+    <MudText>
+      @(_currentVersion)
+    </MudText>
+  </div>
+
+  <div>
+    <MudText Color="Color.Primary">
+      Build:
+    </MudText>
+  </div>
+  <div>
+    <MudText>
+      Private internal build &mdash; md5-hash
+    </MudText>
+  </div>
+
+  <div>
+    <MudText Color="Color.Primary">
+      License:
+    </MudText>
+  </div>
+  <div>
+    <MudText>
+      MIT License (see LICENSE.txt distributed with this build)
+    </MudText>
+  </div>
+
+
+  <div>
+    <MudText Color="Color.Primary">
+      Third-Party Licenses:
+    </MudText>
+  </div>
+
+  <div>
+    <div class="mb-4">
+      <MudText GutterBottom>
+        This build uses the following open-source software and libraries.
+      </MudText>
+    </div>
+
+    <div class="licenses-grid">
+      <MudText>MudBlazor</MudText>
+      <div>
+        <MudLink Color="Color.Info" Class="me-1" Href="https://github.com/MudBlazor/MudBlazor">source</MudLink>
+        <MudLink Color="Color.Info" Href="https://github.com/MudBlazor/MudBlazor/blob/dev/LICENSE">license</MudLink>
+      </div>
+
+      <MudText>Avalonia UI</MudText>
+      <div>
+        <MudLink Color="Color.Info" Class="me-1" Href="https://github.com/AvaloniaUI/Avalonia">source</MudLink>
+        <MudLink Color="Color.Info" Href="https://github.com/AvaloniaUI/Avalonia/blob/master/licence.md">license</MudLink>
+      </div>
+
+      <MudText>Serilog</MudText>
+      <div>
+        <MudLink Color="Color.Info" Class="me-1" Href="https://github.com/serilog/serilog">source</MudLink>
+        <MudLink Color="Color.Info" Href="https://github.com/serilog/serilog/blob/dev/LICENSE">license</MudLink>
+      </div>
+
+      <MudText>PrismJS</MudText>
+      <div>
+        <MudLink Color="Color.Info" Class="me-1" Href="https://github.com/PrismJS/prism">source</MudLink>
+        <MudLink Color="Color.Info" Href="https://github.com/PrismJS/prism/blob/v2/LICENSE">license</MudLink>
+      </div>
+
+      <MudText>OpenTelemetry</MudText>
+      <div>
+        <MudLink Color="Color.Info" Class="me-1" Href="https://github.com/open-telemetry/opentelemetry-dotnet">source</MudLink>
+        <MudLink Color="Color.Info" Href="https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/LICENSE.TXT">license</MudLink>
+      </div>
+
+      <MudText>Tmds.DBus</MudText>
+      <div>
+        <MudLink Color="Color.Info" Class="me-1" Href="https://github.com/tmds/Tmds.DBus">source</MudLink>
+        <MudLink Color="Color.Info" Href="https://github.com/tmds/Tmds.DBus/blob/main/COPYING">license</MudLink>
+      </div>
+
+      <MudText>Microsoft Libraries</MudText>
+      <div>
+        <MudLink Color="Color.Info" Href="https://github.com/microsoft">source</MudLink>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+@code {
+  private Version? _currentVersion = null;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await Init();
+
+    await base.OnInitializedAsync();
+  }
+
+  private Task Init()
+  {
+    try
+    {
+      _currentVersion = Assembly.GetExecutingAssembly().GetName().Version ?? new(0, 1);
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error determining version.");
+      Snackbar.Add("Error determining version.", Severity.Error);
+    }
+    return Task.CompletedTask;
+  }
+}

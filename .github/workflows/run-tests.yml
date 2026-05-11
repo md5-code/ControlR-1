@@ -40,10 +40,10 @@ jobs:
       - name: Build Test Projects
         run: |
           $excludedProjects = @(
-            "ControlR.DesktopClient.Tests.csproj",
-            "ControlR.DesktopClient.Mac.Tests.csproj",
-            "ControlR.DesktopClient.Windows.Tests.csproj",
-            "ControlR.Web.Server.UITests.csproj"
+            "PyTrain.DesktopClient.Tests.csproj",
+            "PyTrain.DesktopClient.Mac.Tests.csproj",
+            "PyTrain.DesktopClient.Windows.Tests.csproj",
+            "PyTrain.Web.Server.UITests.csproj"
           )
 
           $testProjects = Get-ChildItem -Path "Tests" -Recurse -Filter "*.csproj" |
@@ -65,10 +65,10 @@ jobs:
       - name: Run Tests
         run: |
           $excludedProjects = @(
-            "ControlR.DesktopClient.Tests.csproj",
-            "ControlR.DesktopClient.Mac.Tests.csproj",
-            "ControlR.DesktopClient.Windows.Tests.csproj",
-            "ControlR.Web.Server.UITests.csproj"
+            "PyTrain.DesktopClient.Tests.csproj",
+            "PyTrain.DesktopClient.Mac.Tests.csproj",
+            "PyTrain.DesktopClient.Windows.Tests.csproj",
+            "PyTrain.Web.Server.UITests.csproj"
           )
 
           $testProjects = Get-ChildItem -Path "Tests" -Recurse -Filter "*.csproj" |
@@ -110,8 +110,8 @@ jobs:
       - name: Build Desktop Tests
         run: |
           $testProjects = @(
-            "Tests/ControlR.DesktopClient.Tests/ControlR.DesktopClient.Tests.csproj",
-            "Tests/ControlR.DesktopClient.Windows.Tests/ControlR.DesktopClient.Windows.Tests.csproj"
+            "Tests/PyTrain.DesktopClient.Tests/PyTrain.DesktopClient.Tests.csproj",
+            "Tests/PyTrain.DesktopClient.Windows.Tests/PyTrain.DesktopClient.Windows.Tests.csproj"
           )
 
           foreach ($project in $testProjects) {
@@ -125,8 +125,8 @@ jobs:
       - name: Run Desktop Tests
         run: |
           $testProjects = @(
-            "Tests/ControlR.DesktopClient.Tests/ControlR.DesktopClient.Tests.csproj",
-            "Tests/ControlR.DesktopClient.Windows.Tests/ControlR.DesktopClient.Windows.Tests.csproj"
+            "Tests/PyTrain.DesktopClient.Tests/PyTrain.DesktopClient.Tests.csproj",
+            "Tests/PyTrain.DesktopClient.Windows.Tests/PyTrain.DesktopClient.Windows.Tests.csproj"
           )
 
           foreach ($project in $testProjects) {
@@ -171,8 +171,8 @@ jobs:
       - name: Build Desktop Tests
         run: |
           $testProjects = @(
-            "Tests/ControlR.DesktopClient.Tests/ControlR.DesktopClient.Tests.csproj",
-            "Tests/ControlR.DesktopClient.Mac.Tests/ControlR.DesktopClient.Mac.Tests.csproj"
+            "Tests/PyTrain.DesktopClient.Tests/PyTrain.DesktopClient.Tests.csproj",
+            "Tests/PyTrain.DesktopClient.Mac.Tests/PyTrain.DesktopClient.Mac.Tests.csproj"
           )
 
           foreach ($project in $testProjects) {
@@ -186,8 +186,8 @@ jobs:
       - name: Run Desktop Tests
         run: |
           $testProjects = @(
-            "Tests/ControlR.DesktopClient.Tests/ControlR.DesktopClient.Tests.csproj",
-            "Tests/ControlR.DesktopClient.Mac.Tests/ControlR.DesktopClient.Mac.Tests.csproj"
+            "Tests/PyTrain.DesktopClient.Tests/PyTrain.DesktopClient.Tests.csproj",
+            "Tests/PyTrain.DesktopClient.Mac.Tests/PyTrain.DesktopClient.Mac.Tests.csproj"
           )
 
           foreach ($project in $testProjects) {

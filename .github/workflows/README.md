@@ -1,12 +1,12 @@
-# GitHub Actions Workflows for ControlR
+# GitHub Actions Workflows for PyTrain
 
-This repository uses GitHub Actions to build, test, and deploy ControlR.
+This repository uses GitHub Actions to build, test, and deploy PyTrain.
 
 ## Available Workflows
 
 ### 1. Build and Deploy (Main Application)
 
-The main workflow (`build-and-deploy.yml`) handles building the ControlR application and deploying it to various targets.
+The main workflow (`build-and-deploy.yml`) handles building the PyTrain application and deploying it to various targets.
 
 #### Triggering the Workflow
 
@@ -24,7 +24,7 @@ This workflow is manually triggered. To start it:
 
 #### Workflow Steps
 
-1. Builds the ControlR application using the Build.ps1 script
+1. Builds the PyTrain application using the Build.ps1 script
 2. Runs tests
 3. Signs the executables (if code signing certificate is available)
 4. Creates artifacts
@@ -68,16 +68,17 @@ For these workflows to function properly, you need to set up the following repos
 
 When creating a GitHub Release, the following assets are included:
 
-- `ControlR.Server.[version].zip`: Server application
+- `PyTrain.Server.[version].zip`: Server application
 - `docker-compose.yaml`: Docker Compose file
 
 ## Docker Images
 
-Docker images are published to Docker Hub:
+Docker images are published to a private container registry. Update the
+publish-docker workflow with your registry path before running it.
 
-- `bitbound/controlr:preview` - Preview/development version
-- `bitbound/controlr:latest` - Production version
-- `bitbound/controlr:[version]` - Specific version
-- `bitbound/controlr-relay:preview` - Preview relay server
-- `bitbound/controlr-relay:latest` - Production relay server
-- `bitbound/controlr-relay:[version]` - Specific version of relay server
+- `<registry>/pytrain:preview` - Preview/development version
+- `<registry>/pytrain:latest` - Production version
+- `<registry>/pytrain:[version]` - Specific version
+- `<registry>/pytrain-relay:preview` - Preview relay server
+- `<registry>/pytrain-relay:latest` - Production relay server
+- `<registry>/pytrain-relay:[version]` - Specific version of relay server

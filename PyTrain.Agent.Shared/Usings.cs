@@ -1,0 +1,10 @@
+global using Microsoft.Extensions.Logging;
+global using PyTrain.Libraries.Shared.Services;
+global using PyTrain.Libraries.Shared.Constants;
+global using PyTrain.Libraries.Shared.Extensions;
+global using PyTrain.Libraries.Shared.Primitives;
+global using PyTrain.Libraries.Api.Contracts.Dtos.HubDtos;
+global using PyTrain.Libraries.Api.Contracts.Enums;
+global using PyTrain.ApiClient;
+global using PyTrain.Agent.Shared.Services.Base;
+global using PyTrain.Agent.Shared.Interfaces;

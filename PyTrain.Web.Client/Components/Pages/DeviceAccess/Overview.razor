@@ -1,0 +1,11 @@
+﻿@using PyTrain.Web.Client.Components.Layout.DeviceAccess
+@layout DeviceAccessLayout
+@attribute [Route(ClientRoutes.DeviceAccess)]
+@attribute [Authorize]
+
+<div class="pa-4">
+  @if (DeviceAccessState.IsDeviceLoaded)
+  {
+    <DeviceOverviewGrid Device="DeviceAccessState.CurrentDevice" />
+  }
+</div>

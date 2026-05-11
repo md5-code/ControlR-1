@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <Title>PyTrain Libraries WebSocket Relay Client</Title>
+    <Description>
+      WebSocket relay client utilities for PyTrain, an open-source remote control and remote access solution.
+    </Description>
+    <PackageIcon>appicon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IsNuGetPackage>true</IsNuGetPackage>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\.assets\appicon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Bitbound.SimpleMessenger" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PyTrain.Libraries.Shared\PyTrain.Libraries.Shared.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Bitbound.Analyzers.MemberOrder">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

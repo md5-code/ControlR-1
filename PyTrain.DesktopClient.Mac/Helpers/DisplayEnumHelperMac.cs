@@ -1,0 +1,114 @@
+using PyTrain.DesktopClient.Common.Models;
+using PyTrain.Libraries.Api.Contracts.Enums;
+using PyTrain.Libraries.NativeInterop.Mac;
+using Microsoft.Extensions.Logging;
+using System.Drawing;
+
+namespace PyTrain.DesktopClient.Mac.Helpers;
+
+internal interface IDisplayEnumHelperMac
+{
+  List<DisplayInfo> GetDisplays();
+}
+
+internal class DisplayEnumHelperMac(ILogger<DisplayEnumHelperMac> logger) : IDisplayEnumHelperMac
+{
+  private const uint MaxDisplays = 32;
+  private readonly ILogger<DisplayEnumHelperMac> _logger = logger;
+
+  public List<DisplayInfo> GetDisplays()
+  {
+    var displays = new List<DisplayInfo>();
+
+    try
+    {
+      var displayIds = new uint[MaxDisplays];
+      var result = CoreGraphicsInterop.CGGetOnlineDisplayList(MaxDisplays, displayIds, out var displayCount);
+
+      if (result != 0 || displayCount == 0)
+      {
+        // Fallback to main display only
+        _logger.LogWarning("DisplayEnumHelperMac: Using fallback, result={Result}, displayCount={Count}", result, displayCount);
+        var mainDisplayId = CoreGraphicsInterop.CGMainDisplayID();
+        return [CreateDisplayInfo(mainDisplayId, 0, true)];
+      }
+
+      _logger.LogDebug("DisplayEnumHelperMac: Found {Count} displays", displayCount);
+      for (var i = 0; i < displayCount; i++)
+      {
+        var displayId = displayIds[i];
+        var isMain = CoreGraphicsInterop.CGDisplayIsMain(displayId);
+        var displayInfo = CreateDisplayInfo(displayId, i, isMain);
+        displays.Add(displayInfo);
+      }
+    }
+    catch (Exception ex)
+    {
+      // Fallback to main display only
+      _logger.LogError(ex, "DisplayEnumHelperMac: Exception occurred while enumerating displays");
+      var mainDisplayId = CoreGraphicsInterop.CGMainDisplayID();
+      displays.Add(CreateDisplayInfo(mainDisplayId, 0, true));
+    }
+
+    return displays;
+  }
+
+  private DisplayInfo CreateDisplayInfo(uint displayId, int index, bool isMain)
+  {
+    var bounds = CoreGraphicsInterop.CGDisplayBounds(displayId);
+    var logicalWidth = (int)bounds.Width;
+    var logicalHeight = (int)bounds.Height;
+
+    // On macOS, CGDisplayPixelsWide/High return logical dimensions, not physical pixels.
+    // To get pixel dimensions, we need to capture the display and check the image size.
+    nint testImageRef = nint.Zero;
+    int pixelWidth = logicalWidth;
+    int pixelHeight = logicalHeight;
+    try
+    {
+      // Create a test capture to get actual pixel dimensions
+      testImageRef = CoreGraphicsInterop.CGDisplayCreateImage(displayId);
+      if (testImageRef != nint.Zero)
+      {
+        pixelWidth = (int)CoreGraphicsInterop.CGImageGetWidth(testImageRef);
+        pixelHeight = (int)CoreGraphicsInterop.CGImageGetHeight(testImageRef);
+
+      }
+    }
+    catch
+    {
+      // If we can't capture, fall back to logical dimensions
+      pixelWidth = logicalWidth;
+      pixelHeight = logicalHeight;
+    }
+    finally
+    {
+      if (testImageRef != nint.Zero)
+      {
+        CoreGraphicsInterop.CFRelease(testImageRef);
+      }
+    }
+
+    var logicalArea = new Rectangle(
+      (int)bounds.X,
+      (int)bounds.Y,
+      logicalWidth,
+      logicalHeight);
+
+    _logger.LogDebug(
+      "Display {DisplayId}: Layout bounds={LayoutW}x{LayoutH} at ({X},{Y}), Capture pixel size={CaptureW}x{CaptureH}",
+      displayId, logicalWidth, logicalHeight, bounds.X, bounds.Y, pixelWidth, pixelHeight);
+
+    return new DisplayInfo
+    {
+      DeviceName = displayId.ToString(),
+      DisplayName = $"Display {index + 1}",
+      Index = index,
+      IsPrimary = isMain,
+      CapturePixelSize = new Size(pixelWidth, pixelHeight),
+      NativePixelSize = new Size(pixelWidth, pixelHeight),
+      LayoutBounds = logicalArea,
+      LayoutCoordinateSpace = DisplayLayoutCoordinateSpace.Logical,
+    };
+  }
+}

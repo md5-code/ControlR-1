@@ -1,0 +1,82 @@
+[
+  {
+    "Name": "Full Stack",
+    "Projects": [
+      {
+        "Path": "docker-compose\\docker-compose.dcproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "postgres"
+      },
+      {
+        "Path": "PyTrain.Web.Server\\PyTrain.Web.Server.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "PyTrain.Agent\\PyTrain.Agent.csproj",
+        "Action": "Start",
+        "DebugTarget": "Run"
+      },
+      {
+        "Path": "PyTrain.DesktopClient\\PyTrain.DesktopClient.csproj",
+        "Action": "Start",
+        "DebugTarget": "Run"
+      }
+    ]
+  },
+  {
+    "Name": "Full Stack (install)",
+    "Projects": [
+      {
+        "Path": "docker-compose\\docker-compose.dcproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "postgres"
+      },
+      {
+        "Path": "PyTrain.Web.Server\\PyTrain.Web.Server.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "PyTrain.Agent\\PyTrain.Agent.csproj",
+        "Action": "Start",
+        "DebugTarget": "Install"
+      },
+      {
+        "Path": "PyTrain.DesktopClient\\PyTrain.DesktopClient.csproj",
+        "Action": "Start",
+        "DebugTarget": "Run"
+      }
+    ]
+  },
+  {
+    "Name": "Avalonia Viewer",
+    "Projects": [
+      {
+        "Path": "docker-compose\\docker-compose.dcproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "postgres"
+      },
+      {
+        "Path": "PyTrain.Web.Server\\PyTrain.Web.Server.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "PyTrain.Agent\\PyTrain.Agent.csproj",
+        "Action": "Start",
+        "DebugTarget": "Run"
+      },
+      {
+        "Path": "PyTrain.DesktopClient\\PyTrain.DesktopClient.csproj",
+        "Action": "Start",
+        "DebugTarget": "Run"
+      },
+      {
+        "Path": "Examples\\PyTrain.AvaloniaViewerExample\\PyTrain.AvaloniaViewerExample.csproj",
+        "Action": "Start",
+        "DebugTarget": "PyTrain.AvaloniaViewerExample"
+      }
+    ]
+  }
+]

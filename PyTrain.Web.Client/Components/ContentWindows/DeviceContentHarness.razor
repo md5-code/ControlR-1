@@ -1,0 +1,48 @@
+﻿@using System.Collections.Specialized
+@using PyTrain.Web.Client.Models.Messages
+@implements IDisposable
+@inject IDeviceContentWindowStore WindowStore
+@inject IScreenWake ScreenWake
+@inject IMessenger Messenger
+
+<div class="device-content-window-harness">
+  @foreach (var instance in ContentInstances)
+  {
+    <DeviceContentWindow @key=(instance.WindowId) ContentInstance="@(instance)" />
+  }
+</div>
+
+@code {
+  private IReadOnlyList<DeviceContentInstance> ContentInstances => WindowStore.Windows;
+
+  public void Dispose()
+  {
+    if (RendererInfo.IsInteractive)
+    {
+      Messenger.UnregisterAll(this);
+    }
+  }
+
+  protected override void OnInitialized()
+  {
+    if (RendererInfo.IsInteractive)
+    {
+      Messenger.RegisterEvent(this, HandleEventMessage);
+    }
+    base.OnInitializedAsync();
+  }
+
+  private async void OnRemoteSessionsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+  {
+    await InvokeAsync(StateHasChanged);
+  }
+
+  private async Task HandleEventMessage(object subscriber, Guid eventKind)
+  {
+    if (eventKind == EventKinds.DeviceContentWindowsChanged)
+    {
+      await ScreenWake.SetScreenWakeLock(ContentInstances.Count > 0);
+      await InvokeAsync(StateHasChanged);
+    }
+  }
+}

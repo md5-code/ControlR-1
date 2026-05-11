@@ -1,0 +1,10 @@
+﻿namespace PyTrain.Libraries.Shared.Services.Processes;
+
+/// <summary>
+///   Thrown when a process exit with a non-zero status code.
+/// </summary>
+public class ProcessStatusException(int statusCode) : Exception
+{
+  public override string Message =>
+    $"Process exited with status code {statusCode}";
+}

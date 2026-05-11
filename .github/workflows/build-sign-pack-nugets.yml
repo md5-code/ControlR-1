@@ -82,16 +82,16 @@ jobs:
           AZURE_KEY_VAULT_CERTIFICATE_NAME: ${{ secrets.AZURE_KEY_VAULT_CERTIFICATE_NAME }}
         run: |
           $projects = @(
-            @{ path = "ControlR.ApiClient/ControlR.ApiClient.csproj"; name = "ApiClientNuGet" },
-            @{ path = "Libraries/ControlR.Libraries.DataRedaction/ControlR.Libraries.DataRedaction.csproj"; name = "DataRedactionNuGet" },
-            @{ path = "Libraries/ControlR.Libraries.Api.Contracts/ControlR.Libraries.Api.Contracts.csproj"; name = "ApiContractsNuGet" },
-            @{ path = "Libraries/ControlR.Libraries.Shared/ControlR.Libraries.Shared.csproj"; name = "LibrariesSharedNuGet" },
-            @{ path = "Libraries/ControlR.Libraries.Signalr.Client/ControlR.Libraries.Signalr.Client.csproj"; name = "SignalrClientNuGet" },
-            @{ path = "Libraries/ControlR.Libraries.WebSocketRelay.Client/ControlR.Libraries.WebSocketRelay.Client.csproj"; name = "WebSocketRelayClientNuGet" },
-            @{ path = "Libraries/ControlR.Libraries.Messenger.Extensions/ControlR.Libraries.Messenger.Extensions.csproj"; name = "MessengerExtensionsNuGet" },
-            @{ path = "Libraries/ControlR.Libraries.Viewer.Common/ControlR.Libraries.Viewer.Common.csproj"; name = "ViewerCommonNuGet" },
-            @{ path = "Libraries/ControlR.Libraries.Avalonia/ControlR.Libraries.Avalonia.csproj"; name = "LibrariesAvaloniaNuGet" },
-            @{ path = "ControlR.Viewer.Avalonia/ControlR.Viewer.Avalonia.csproj"; name = "ViewerAvaloniaNuGet" }
+            @{ path = "PyTrain.ApiClient/PyTrain.ApiClient.csproj"; name = "ApiClientNuGet" },
+            @{ path = "Libraries/PyTrain.Libraries.DataRedaction/PyTrain.Libraries.DataRedaction.csproj"; name = "DataRedactionNuGet" },
+            @{ path = "Libraries/PyTrain.Libraries.Api.Contracts/PyTrain.Libraries.Api.Contracts.csproj"; name = "ApiContractsNuGet" },
+            @{ path = "Libraries/PyTrain.Libraries.Shared/PyTrain.Libraries.Shared.csproj"; name = "LibrariesSharedNuGet" },
+            @{ path = "Libraries/PyTrain.Libraries.Signalr.Client/PyTrain.Libraries.Signalr.Client.csproj"; name = "SignalrClientNuGet" },
+            @{ path = "Libraries/PyTrain.Libraries.WebSocketRelay.Client/PyTrain.Libraries.WebSocketRelay.Client.csproj"; name = "WebSocketRelayClientNuGet" },
+            @{ path = "Libraries/PyTrain.Libraries.Messenger.Extensions/PyTrain.Libraries.Messenger.Extensions.csproj"; name = "MessengerExtensionsNuGet" },
+            @{ path = "Libraries/PyTrain.Libraries.Viewer.Common/PyTrain.Libraries.Viewer.Common.csproj"; name = "ViewerCommonNuGet" },
+            @{ path = "Libraries/PyTrain.Libraries.Avalonia/PyTrain.Libraries.Avalonia.csproj"; name = "LibrariesAvaloniaNuGet" },
+            @{ path = "PyTrain.Viewer.Avalonia/PyTrain.Viewer.Avalonia.csproj"; name = "ViewerAvaloniaNuGet" }
           )
 
           # Create a single flat output directory for all packages

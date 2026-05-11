@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup>
+		<UserSecretsId>aspnet-PyTrain.Web-5aea8da1-1536-4f6c-b6d7-c7c0db228eca</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	</PropertyGroup>
+	<PropertyGroup>
+		<OpenApiDocumentsDirectory>.</OpenApiDocumentsDirectory>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(SelfContained)' == 'true'">
+		<OpenApiGenerateDocumentsOnBuild>false</OpenApiGenerateDocumentsOnBuild>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.Hosting\PyTrain.Libraries.Hosting.csproj" />
+		<ProjectReference Include="..\PyTrain.Web.Client\PyTrain.Web.Client.csproj" />
+		<ProjectReference Include="..\PyTrain.Web.ServiceDefaults\PyTrain.Web.ServiceDefaults.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.DataRedaction\PyTrain.Libraries.DataRedaction.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.Shared\PyTrain.Libraries.Shared.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.WebSocketRelay.Common\PyTrain.Libraries.WebSocketRelay.Common.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AspNet.Security.OAuth.GitHub" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" />
+		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+		<PackageReference Include="Scalar.AspNetCore" />
+		<PackageReference Include="MailKit" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Systemd" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Extensions.MudBlazor.StaticInput" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+		<PackageReference Include="QRCoder" />
+		<PackageReference Update="Bitbound.Analyzers.MemberOrder">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Data\Migrations\" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Remove="novnc\**\*" />
+		<None Include="novnc\**\*" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+</Project>

@@ -2,7 +2,7 @@
   <PropertyGroup Condition="'$(IsMacOS)' == 'true'">
     <TargetPlatformVersion>$(MacTargetPlatformVersion)</TargetPlatformVersion>
     <SelfContained>true</SelfContained>
-    <ApplicationTitle>ControlR</ApplicationTitle>
+    <ApplicationTitle>PyTrain</ApplicationTitle>
     <UseAppHost>true</UseAppHost>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>

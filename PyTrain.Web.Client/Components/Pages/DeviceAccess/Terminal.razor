@@ -1,0 +1,58 @@
+@layout DeviceAccessLayout
+@attribute [Route(ClientRoutes.DeviceAccessTerminal)]
+@attribute [Authorize]
+@using PyTrain.Web.Client.Components.Layout.DeviceAccess
+@using PyTrain.Libraries.Api.Contracts.Dtos.HubDtos.PwshCommandCompletions
+
+<div class="h-100">
+  @if (_loading)
+  {
+    <LoadingIndicator IsVisible Message="Loading" Class="mt-4" />
+  }
+  else
+  {
+    <div class="terminal-grid">
+      <div @ref="_terminalOutputContainer" class="terminal-output-container">
+
+        @foreach (var line in TerminalState.Output)
+        {
+          <div @key=(line) class="@(GetOutputColor(line))">
+            @(line.Output)
+          </div>
+        }
+      </div>
+      <div>
+        @if (_currentCompletions is not null)
+        {
+          <MudAutocomplete @ref="@(_completionsAutoComplete)" T="PwshCompletionMatch"
+                           OnKeyDown="@(OnCompletionInputKeyDown)" Clearable="true" ValueChanged="@(OnCompletionSelected)"
+                           SearchFunc="@SearchCompletions" ToStringFunc="@(x => x?.ListItemText)" SelectValueOnTab AutoFocus
+                           MaxItems="null" AnchorOrigin="@(Origin.TopCenter)" TransformOrigin="(Origin.BottomCenter)">
+            <ItemTemplate>
+              @context.ListItemText
+            </ItemTemplate>
+            <ItemSelectedTemplate>
+              @context.ListItemText
+            </ItemSelectedTemplate>
+          </MudAutocomplete>
+        }
+        <MudTextField T="string" @ref="@(_commandInputElement)" InputId="@(_commandInputElementId)"
+                      @bind-Value="@TerminalState.CommandInputText" @bind-Text="@TerminalState.CommandInputText"
+                      Label="Enter a command" HelperText="Type a command and press Enter to send"
+                      Lines="@CommandInputLineCount" HelperTextOnFocus="true" AutoFocus="true" Immediate="true"
+                      UserAttributes="_commandInputAttributes" OnKeyDown="@OnInputKeyDown" Class="mt-2" />
+      </div>
+      <div class="d-flex justify-space-between align-center">
+        <MudSwitch @bind-Value="TerminalState.EnableMultiline" Color="Color.Success" Label="Multiline Input" />
+
+        <div>
+          <MudTooltip Text="Keyboard Shortcuts">
+            <MudIconButton Icon="@Icons.Material.Filled.QuestionMark" Color="Color.Info"
+                           OnClick="ShowKeyboardShortcuts" />
+          </MudTooltip>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

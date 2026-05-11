@@ -1,0 +1,96 @@
+@using System.Collections.Immutable
+@using PyTrain.Web.Client.StateManagement.Stores
+
+@inject IUserTagStore UserTagStore
+
+<MudSelect T="string" MultiSelection="true" QuickSearchInterval="@(TimeSpan.FromMilliseconds(50))" Text="@GetText()"
+           MultiSelectionTextFunc="@GetTagsMultiSelectText" AdornmentIcon="@Icons.Material.Filled.Tag" Adornment="Adornment.End"
+           SelectedValues="_selectedTagNames" SelectedValuesChanged="HandleSelectedTagsChanged" SelectAll="true" FullWidth="true"
+           SelectAllText="All Tags" Immediate="true">
+  @foreach (var tag in UserTagStore.Items)
+  {
+    <MudSelectItem Value="@tag.Name">
+      @tag.Name
+    </MudSelectItem>
+  }
+</MudSelect>
+
+@code {
+  private HashSet<string> _selectedTagNames = [];
+
+  [Parameter]
+  public ImmutableArray<TagViewModel> SelectedTags { get; set; }
+
+  [Parameter]
+  public EventCallback<ImmutableArray<TagViewModel>> SelectedTagsChanged { get; set; }
+
+
+  protected override async Task OnInitializedAsync()
+  {
+    await base.OnInitializedAsync();
+
+    if (UserTagStore.Items.Count == 0)
+    {
+      await UserTagStore.Refresh();
+    }
+  }
+
+  protected override void OnParametersSet()
+  {
+    base.OnParametersSet();
+    SyncSelectedTagNames();
+  }
+
+  private string GetTagsMultiSelectText(IReadOnlyList<string> tags)
+  {
+    if (tags.Count == 0)
+    {
+      return "No tags selected";
+    }
+
+    if (_selectedTagNames.Count == UserTagStore.Items.Count)
+    {
+      return "All tags selected";
+    }
+
+    var tagNoun = tags.Count > 1 ? "tags" : "tag";
+    return $"{tags.Count} {tagNoun} selected";
+  }
+
+  private string GetText()
+  {
+    if (_selectedTagNames.Count == 0)
+    {
+      return "No tag filter";
+    }
+
+    if (_selectedTagNames.Count == UserTagStore.Items.Count)
+    {
+      return "All tags selected";
+    }
+
+    var tagNoun = _selectedTagNames.Count > 1 ? "tags" : "tag";
+    return $"{_selectedTagNames.Count} {tagNoun} selected";
+  }
+
+  private async Task HandleSelectedTagsChanged(IEnumerable<string>? tags)
+  {
+    await SetSelectedTags(tags);
+  }
+
+  private async Task SetSelectedTags(IEnumerable<string>? tags)
+  {
+    _selectedTagNames = tags?.ToHashSet() ?? [];
+
+    SelectedTags = UserTagStore.Items
+      .Where(x => _selectedTagNames.Contains(x.Name))
+      .ToImmutableArray();
+
+    await SelectedTagsChanged.InvokeAsync(SelectedTags);
+  }
+
+  private void SyncSelectedTagNames()
+  {
+    _selectedTagNames = SelectedTags.Select(x => x.Name).ToHashSet();
+  }
+}

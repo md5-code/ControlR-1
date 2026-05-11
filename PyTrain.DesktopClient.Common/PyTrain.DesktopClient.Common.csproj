@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+ 		<PackageReference Include="Avalonia" />
+ 		<PackageReference Include="CommunityToolkit.Mvvm" />
+ 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
+ 		<PackageReference Include="Microsoft.Extensions.Hosting" />
+ 		<PackageReference Include="SkiaSharp" />
+		<PackageReference Update="Bitbound.Analyzers.MemberOrder">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+  <ItemGroup>
+ 		<ProjectReference Include="../Libraries/PyTrain.Libraries.Ipc/PyTrain.Libraries.Ipc.csproj" />
+ 		<ProjectReference Include="..\Libraries\PyTrain.Libraries.Shared\PyTrain.Libraries.Shared.csproj" />
+ 		<ProjectReference Include="..\Libraries\PyTrain.Libraries.WebSocketRelay.Client\PyTrain.Libraries.WebSocketRelay.Client.csproj" />
+     <ProjectReference Include="..\Libraries\PyTrain.Libraries.Hosting\PyTrain.Libraries.Hosting.csproj" />
+ 	</ItemGroup>
+ 	<ItemGroup>
+ 		<EmbeddedResource Include="Resources\Strings\en-US.json" />
+ 	</ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\PermissionsView.axaml.cs">
+      <DependentUpon>PermissionsView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsWindows)' == 'true'">
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsLinux)' == 'true'">
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsMacOS)' == 'true'">
+    <PackageReference Include="SkiaSharp.NativeAssets.macOS" />
+  </ItemGroup>
+
+</Project>

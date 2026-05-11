@@ -1,13 +1,13 @@
 {
   "profiles": {
-    "controlr": {
+    "pytrain": {
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "composeLaunchAction": "LaunchBrowser",
-      "composeLaunchServiceName": "controlr",
+      "composeLaunchServiceName": "pytrain",
       "composeLaunchUrl": "http://localhost:5120/",
       "serviceActions": {
-        "controlr": "StartDebugging"
+        "pytrain": "StartDebugging"
       }
     },
     "postgres": {
@@ -18,7 +18,7 @@
       "serviceActions": {
         "postgres": "StartWithoutDebugging",
         "aspire": "StartWithoutDebugging",
-        "controlr": "DoNotStart"
+        "pytrain": "DoNotStart"
       }
     }
   }

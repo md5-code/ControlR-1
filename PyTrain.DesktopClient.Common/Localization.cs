@@ -1,0 +1,152 @@
+﻿using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
+
+namespace PyTrain.DesktopClient.Common;
+
+public static class Localization
+{
+
+  private static readonly JsonSerializerOptions _jsonOptions = new()
+  {
+    AllowTrailingCommas = true,
+    PropertyNameCaseInsensitive = true,
+    ReadCommentHandling = JsonCommentHandling.Skip
+  };
+
+  private static string _currentCulture = CultureInfo.CurrentCulture.Name;
+  private static Dictionary<string, string> _localizationStrings = GetLocalizationStrings();
+
+  public static string About => GetString();
+  public static string AboutLibraryAvaloniaUi => GetString();
+  public static string AboutLibraryMicrosoftLibraries => GetString();
+  public static string AboutLibrarySerilog => GetString();
+  public static string AboutLibraryTmdsDbus => GetString();
+  public static string AboutLicenseLabel => GetString();
+  public static string AboutProjectLabel => GetString();
+  public static string AboutSourceText => GetString();
+  public static string AboutSponsorButton => GetString();
+  public static string AboutSponsorDescription => GetString();
+  public static string AboutSponsorLabel => GetString();
+  public static string AboutThirdPartyLicensesDescription => GetString();
+  public static string AboutThirdPartyLicensesLabel => GetString();
+  public static string AboutWebsiteLabel => GetString();
+  public static string Accessibility => GetString();
+  public static string AccessibilityPermissionDescription => GetString();
+  public static string ActiveConnections => GetString();
+  public static string ADeviceAdministrator => GetString();
+  public static string AgentConnectedTooltip => GetString();
+  public static string AgentDisconnectedTooltip => GetString();
+  public static string AgentStatus => GetString();
+  public static string Auto => GetString();
+  public static string CancelText => GetString();
+  public static string ChatMessageSendFailureMessage => GetString();
+  public static string ChatMessageSendFailureTitle => GetString();
+  public static string ChatSessionClosedToastMessage => GetString();
+  public static string ChatSessionClosedToastTitle => GetString();
+  public static string ChatWindowClosedSystemMessage => GetString();
+  public static string ChatWindowDefaultTitle => GetString();
+  public static string ChatWindowTitle => GetString();
+  public static string CloseText => GetString();
+  public static string ConfirmDisconnect => GetString();
+  public static string ConfirmDisconnectTitle => GetString();
+  public static string Connected => GetString();
+  public static string ConnectedAtLabel => GetString();
+  public static string Connections => GetString();
+  public static string CouldNotCreateViewMessage => GetString();
+  public static string Dark => GetString();
+  public static string Disconnect => GetString();
+  public static string Disconnected => GetString();
+  public static string EnterCodePlaceholder => GetString();
+  public static string EnterMessagePlaceholder => GetString();
+  public static string GetSupportDescription => GetString();
+  public static string GetTechSupportTitle => GetString();
+  public static string Granted => GetString();
+  public static string GrantPermission => GetString();
+  public static string InstanceId => GetString();
+  public static string InvalidViewModelTypeMessage => GetString();
+  public static string LearnMore => GetString();
+  public static string Light => GetString();
+  public static string LinkLicenseText => GetString();
+  public static string MacAccessibilityPermissionRestartRequired => GetString();
+  public static string MacPermissionStaleHint => GetString();
+  public static string MacScreenCapturePermissionRestartRequired => GetString();
+  public static string ManagedDeviceMessage => GetString();
+  public static string ManagedDeviceTitle => GetString();
+  public static string NewChatMessageToastMessage => GetString();
+  public static string NewChatMessageToastTitle => GetString();
+  public static string NoActiveConnections => GetString();
+  public static string NoMessagesText => GetString();
+  public static string None => GetString();
+  public static string NoPermissionsRequired => GetString();
+  public static string NoText => GetString();
+  public static string NotGranted => GetString();
+  public static string NotificationPermissionDescription => GetString();
+  public static string Notifications => GetString();
+  public static string OkText => GetString();
+  public static string OpenSettings => GetString();
+  public static string Permissions => GetString();
+  public static string PermissionsMissingToastMessage => GetString();
+  public static string PermissionsMissingToastTitle => GetString();
+  public static string RemoteControlPermission => GetString();
+  public static string RemoteControlPermissionDescription => GetString();
+  public static string RemoteControlRequestMessage => GetString();
+  public static string RemoteControlRequestTitle => GetString();
+  public static string RemoteControlSessionEndToastMessage => GetString();
+  public static string RemoteControlSessionStartToastMessage => GetString();
+  public static string RemoteControlSessionToastTitle => GetString();
+  public static string ScreenCapturePermissionDescription => GetString();
+  public static string ScreenCastPermission => GetString();
+  public static string ScreenCastPermissionDescription => GetString();
+  public static string ScreenRecording => GetString();
+  public static string SendMessageText => GetString();
+  public static string SendText => GetString();
+  public static string Settings => GetString();
+  public static string ShareScreenSecurityWarning => GetString();
+  public static string Status => GetString();
+  public static string SubmitText => GetString();
+  public static string Theme => GetString();
+  public static string TrayExit => GetString();
+  public static string TrayShow => GetString();
+  public static string UnhandledExceptionMessage => GetString();
+  public static string UnhandledExceptionTitle => GetString();
+  public static string Version => GetString();
+  public static string ViewNotFoundMessage => GetString();
+  public static string YesText => GetString();
+  public static string You => GetString();
+
+  public static void SetCulture(string culture)
+  {
+    _currentCulture = culture;
+    _localizationStrings = GetLocalizationStrings();
+  }
+
+  private static Dictionary<string, string> GetLocalizationStrings()
+  {
+    var assembly = typeof(Localization).Assembly;
+    var resourceNames = assembly.GetManifestResourceNames();
+
+    if (resourceNames.FirstOrDefault(x => x.EndsWith($"{_currentCulture}.json")) is not { } fileName)
+    {
+      fileName = $"{assembly.GetName().Name}.Resources.Strings.en-US.json";
+    }
+
+    using var resourceStream = assembly.GetManifestResourceStream(fileName)
+                               ?? throw new InvalidOperationException("Unable to find localization file.");
+
+    using var reader = new StreamReader(resourceStream);
+    var content = reader.ReadToEnd();
+    return JsonSerializer.Deserialize<Dictionary<string, string>>(content, _jsonOptions)
+           ?? throw new InvalidOperationException("Unable to deserialize localization file.");
+  }
+
+  private static string GetString([CallerMemberName] string key = "")
+  {
+    if (_localizationStrings.TryGetValue(key, out var value))
+    {
+      return value;
+    }
+
+    return $"Localization key '{key}' not found.";
+  }
+}

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <None Remove="Resources\InstallerDaemon.plist" />
+    <None Remove="Resources\LaunchAgent.plist" />
+    <None Remove="Resources\LaunchDaemon.plist" />
+    <None Remove="Resources\pytrain.agent.service" />
+    <None Remove="Resources\pytrain.desktop.service" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\InstallerDaemon.plist" />
+    <EmbeddedResource Include="Resources\LaunchAgent.plist" />
+    <EmbeddedResource Include="Resources\LaunchDaemon.plist" />
+    <EmbeddedResource Include="Resources\pytrain.agent.service" />
+    <EmbeddedResource Include="Resources\pytrain.desktop.service" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PyTrain.ApiClient\PyTrain.ApiClient.csproj" />
+    <ProjectReference Include="..\Libraries\PyTrain.Libraries.NativeInterop.Unix\PyTrain.Libraries.NativeInterop.Unix.csproj" />
+    <ProjectReference Include="..\Libraries\PyTrain.Libraries.NativeInterop.Windows\PyTrain.Libraries.NativeInterop.Windows.csproj" />
+    <ProjectReference Include="..\Libraries\PyTrain.Libraries.Shared\PyTrain.Libraries.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

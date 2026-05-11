@@ -1,0 +1,24 @@
+﻿using PyTrain.Libraries.Shared.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace PyTrain.DesktopClient.Mac.Services;
+public class ScreenWakerMac(
+  IMacInterop macInterop,
+  ILogger<ScreenGrabberMac> logger) : IHostedService
+{
+  private readonly ILogger<ScreenGrabberMac> _logger = logger;
+  private readonly IMacInterop _macInterop = macInterop;
+
+  public Task StartAsync(CancellationToken cancellationToken)
+  {
+    var result = _macInterop.WakeScreen();
+    _logger.LogResult(result);
+    return Task.CompletedTask;
+  }
+
+  public Task StopAsync(CancellationToken cancellationToken)
+  {
+    return Task.CompletedTask;
+  }
+}

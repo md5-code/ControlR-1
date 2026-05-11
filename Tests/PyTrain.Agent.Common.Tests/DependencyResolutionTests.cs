@@ -1,0 +1,44 @@
+using PyTrain.Agent.Common.Models;
+using PyTrain.Agent.Common.Startup;
+using Microsoft.Extensions.Hosting;
+
+namespace PyTrain.Agent.Common.Tests;
+
+public class DependencyResolutionTests
+{
+  [Theory]
+  [InlineData(StartupMode.Run)]
+  [InlineData(StartupMode.Uninstall)]
+  internal void Build_InDevelopment_ValidatesDependencyGraph(StartupMode startupMode)
+  {
+    // Arrange
+    var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+    {
+      EnvironmentName = Environments.Development
+    });
+
+    builder.AddPyTrainAgent(startupMode, instanceId: null, serverUri: null, loadAppSettings: false);
+
+    // Act & Assert - In Development, Build() validates the entire dependency graph
+    // and throws if any registered services have unresolved dependencies.
+    using var host = builder.Build();
+  }
+
+  [Theory]
+  [InlineData(StartupMode.Run)]
+  [InlineData(StartupMode.Uninstall)]
+  internal void Build_InProduction_Succeeds(StartupMode startupMode)
+  {
+    // Arrange
+    var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+    {
+      EnvironmentName = Environments.Production
+    });
+
+    builder.AddPyTrainAgent(startupMode, instanceId: null, serverUri: null, loadAppSettings: false);
+
+    // Act & Assert - In Production, Build() does not validate the dependency graph,
+    // but we still verify it builds successfully.
+    using var host = builder.Build();
+  }
+}

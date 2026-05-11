@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ApplicationIcon>..\.assets\appicon.ico</ApplicationIcon>
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishSingleFile>true</PublishSingleFile>
+    <UseAppHost>true</UseAppHost>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <EnableWindowsBundleSigning>true</EnableWindowsBundleSigning>
+  </PropertyGroup>
+
+  <!-- Dependencies for installer -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="System.CommandLine" />
+  </ItemGroup>
+
+  <!-- Reference shared libraries -->
+  <ItemGroup>
+    <ProjectReference Include="..\PyTrain.Agent.Shared\PyTrain.Agent.Shared.csproj" />
+    <ProjectReference Include="..\PyTrain.ApiClient\PyTrain.ApiClient.csproj" />
+    <ProjectReference Include="..\Libraries\PyTrain.Libraries.Shared\PyTrain.Libraries.Shared.csproj" />
+    <ProjectReference Include="..\Libraries\PyTrain.Libraries.Serilog\PyTrain.Libraries.Serilog.csproj" />
+  </ItemGroup>
+
+  <Import Project="../WindowsBundleSign.Build.targets" Condition="'$(IsWindows)' == 'true'" />
+</Project>

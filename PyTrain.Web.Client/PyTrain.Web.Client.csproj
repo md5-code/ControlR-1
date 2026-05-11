@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+	<PropertyGroup>
+		<NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+		<StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Extensions.MudBlazor.StaticInput" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" />
+		<PackageReference Include="MudBlazor" />
+		<PackageReference Include="Bitbound.SimpleMessenger" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
+		<PackageReference Update="Bitbound.Analyzers.MemberOrder">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\PyTrain.ApiClient\PyTrain.ApiClient.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.Branding\PyTrain.Libraries.Branding.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.Messenger.Extensions\PyTrain.Libraries.Messenger.Extensions.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.Shared\PyTrain.Libraries.Shared.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.Signalr.Client\PyTrain.Libraries.Signalr.Client.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.Viewer.Common\PyTrain.Libraries.Viewer.Common.csproj" />
+		<ProjectReference Include="..\Libraries\PyTrain.Libraries.WebSocketRelay.Client\PyTrain.Libraries.WebSocketRelay.Client.csproj" />
+	</ItemGroup>
+</Project>

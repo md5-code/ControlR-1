@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PyTrain.DesktopClient.Common\PyTrain.DesktopClient.Common.csproj" />
+    <ProjectReference Include="..\Libraries\PyTrain.Libraries.NativeInterop.Windows\PyTrain.Libraries.NativeInterop.Windows.csproj" />
+    <ProjectReference Include="..\Libraries\PyTrain.Libraries.Serilog\PyTrain.Libraries.Serilog.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" />
+    <PackageReference Update="Bitbound.Analyzers.MemberOrder">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

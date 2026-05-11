@@ -1,0 +1,57 @@
+<Application xmlns="https://github.com/avaloniaui"
+						 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+						 x:Class="PyTrain.DesktopClient.App"
+						 xmlns:local="using:PyTrain.DesktopClient"
+						 xmlns:common="using:PyTrain.DesktopClient.Common"
+						 xmlns:vm="using:PyTrain.DesktopClient.ViewModels"
+						 xmlns:vmf="using:PyTrain.DesktopClient.ViewModels.Fakes"
+			       xmlns:brand="using:PyTrain.Libraries.Branding"
+						 x:DataType="vm:AppViewModel"
+						 Name="{x:Static brand:BrandingConstants.BrandName}">
+	
+	<Application.DataTemplates>
+		<local:ViewLocator/>
+	</Application.DataTemplates>
+
+	<Application.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceInclude Source="avares://PyTrain.Libraries.Avalonia/Resources/Theme.axaml" />
+				<ResourceInclude Source="/Resources/Converters.axaml" />
+				<ResourceInclude Source="/Resources/Icons.axaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
+
+	<Application.Styles>
+		<FluentTheme>
+			<FluentTheme.Palettes>
+				<ColorPaletteResources x:Key="Dark"
+															 Accent="#2196F3"
+															 RegionColor="#121212"/>
+				<ColorPaletteResources x:Key="Light"
+															 Accent="#2196F3"
+															 RegionColor="#FAFAFA"/>
+			</FluentTheme.Palettes>
+		</FluentTheme>
+
+		<StyleInclude Source="avares://PyTrain.Libraries.Avalonia/Resources/Styles.axaml" />
+		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+	</Application.Styles>
+
+
+	<TrayIcon.Icons>
+		<TrayIcons>
+			<TrayIcon Icon="/Assets/appicon.ico" ToolTipText="PyTrain" Command="{Binding ShowMainWindowCommand}">
+				<TrayIcon.Menu>
+					<NativeMenu>
+						<NativeMenuItem Header="{x:Static common:Localization.TrayShow}" Command="{Binding ShowMainWindowCommand}" />
+						<NativeMenuItemSeparator />
+						<NativeMenuItem Header="{x:Static common:Localization.TrayExit}" Command="{Binding ExitApplicationCommand}" />
+					</NativeMenu>
+				</TrayIcon.Menu>
+			</TrayIcon>
+		</TrayIcons>
+	</TrayIcon.Icons>
+
+</Application>

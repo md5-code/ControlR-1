@@ -202,37 +202,37 @@ jobs:
 
       - name: Publish DesktopClient Bundle (${{ matrix.arch }})
         run: |
-          PUBLISH_DIR="${{github.workspace}}/ControlR.DesktopClient/bin/publish/${{ matrix.arch }}"
-          DOWNLOADS_DIR="${{github.workspace}}/ControlR.Web.Server/wwwroot/downloads/${{ matrix.arch }}"
+          PUBLISH_DIR="${{github.workspace}}/PyTrain.DesktopClient/bin/publish/${{ matrix.arch }}"
+          DOWNLOADS_DIR="${{github.workspace}}/PyTrain.Web.Server/wwwroot/downloads/${{ matrix.arch }}"
 
           mkdir -p "$DOWNLOADS_DIR"
           mkdir -p "$PUBLISH_DIR"
 
           echo "Publishing version $VERSION for macOS ${{ matrix.arch }}..."
-          dotnet publish "./ControlR.DesktopClient/" \
+          dotnet publish "./PyTrain.DesktopClient/" \
             -c Release \
             -r ${{ matrix.arch }} \
             -f net10.0-macos \
             --self-contained \
             -p:CreatePackage=false \
             -p:EnableCodeSigning=false \
-            -p:AppBundleDir="$PUBLISH_DIR/ControlR.DesktopClient.app" \
+            -p:AppBundleDir="$PUBLISH_DIR/PyTrain.DesktopClient.app" \
             -p:Version="$VERSION" \
             -p:FileVersion="$VERSION"
 
-          if [ ! -f "$PUBLISH_DIR/ControlR.DesktopClient.app/Contents/MacOS/ControlR.DesktopClient" ]; then
+          if [ ! -f "$PUBLISH_DIR/PyTrain.DesktopClient.app/Contents/MacOS/PyTrain.DesktopClient" ]; then
             ls -la "$PUBLISH_DIR/" || true
-            echo "ERROR: DesktopClient publish output missing: $PUBLISH_DIR/ControlR.DesktopClient.app/Contents/MacOS/ControlR.DesktopClient"
+            echo "ERROR: DesktopClient publish output missing: $PUBLISH_DIR/PyTrain.DesktopClient.app/Contents/MacOS/PyTrain.DesktopClient"
             exit 1
           fi
 
-          mv "$PUBLISH_DIR/ControlR.DesktopClient.app" "$PUBLISH_DIR/ControlR.app"
+          mv "$PUBLISH_DIR/PyTrain.DesktopClient.app" "$PUBLISH_DIR/PyTrain.app"
 
       - name: Publish Agent (${{ matrix.arch }})
         run: |
-          AGENT_PUBLISH_DIR="${{ github.workspace }}/ControlR.Agent/bin/publish/${{ matrix.arch }}"
+          AGENT_PUBLISH_DIR="${{ github.workspace }}/PyTrain.Agent/bin/publish/${{ matrix.arch }}"
 
-          dotnet publish "./ControlR.Agent/" \
+          dotnet publish "./PyTrain.Agent/" \
             -c Release \
             -r ${{ matrix.arch }} \
             --self-contained \
@@ -245,34 +245,34 @@ jobs:
             -p:IncludeAppSettingsInSingleFile=true \
             -o "$AGENT_PUBLISH_DIR"
 
-          if [ ! -f "$AGENT_PUBLISH_DIR/ControlR.Agent" ]; then
+          if [ ! -f "$AGENT_PUBLISH_DIR/PyTrain.Agent" ]; then
             ls -la "$AGENT_PUBLISH_DIR/" || true
-            echo "ERROR: Agent publish output missing: $AGENT_PUBLISH_DIR/ControlR.Agent"
+            echo "ERROR: Agent publish output missing: $AGENT_PUBLISH_DIR/PyTrain.Agent"
             exit 1
           fi
 
       - name: Stage and Sign Bundle (${{ matrix.arch }})
         run: |
-          PUBLISH_DIR="${{github.workspace}}/ControlR.DesktopClient/bin/publish/${{ matrix.arch }}"
-          AGENT_PUBLISH_DIR="${{ github.workspace }}/ControlR.Agent/bin/publish/${{ matrix.arch }}"
-          EMBEDDED_AGENT_PATH="$PUBLISH_DIR/ControlR.app/Contents/Library/LaunchServices/ControlR.Agent"
+          PUBLISH_DIR="${{github.workspace}}/PyTrain.DesktopClient/bin/publish/${{ matrix.arch }}"
+          AGENT_PUBLISH_DIR="${{ github.workspace }}/PyTrain.Agent/bin/publish/${{ matrix.arch }}"
+          EMBEDDED_AGENT_PATH="$PUBLISH_DIR/PyTrain.app/Contents/Library/LaunchServices/PyTrain.Agent"
 
           echo "Embedding agent helper inside app bundle..."
-          mkdir -p "$PUBLISH_DIR/ControlR.app/Contents/Library/LaunchServices"
-          cp "$AGENT_PUBLISH_DIR/ControlR.Agent" "$EMBEDDED_AGENT_PATH"
+          mkdir -p "$PUBLISH_DIR/PyTrain.app/Contents/Library/LaunchServices"
+          cp "$AGENT_PUBLISH_DIR/PyTrain.Agent" "$EMBEDDED_AGENT_PATH"
 
           echo "Code signing embedded helper for macOS ${{ matrix.arch }}..."
           codesign \
             --force \
             --options runtime \
             --timestamp \
-            --entitlements "./ControlR.Agent/Entitlements.plist" \
+            --entitlements "./PyTrain.Agent/Entitlements.plist" \
             --keychain "$RUNNER_TEMP/build.keychain" \
             --sign "$IDENTITY_HASH" \
             "$EMBEDDED_AGENT_PATH"
 
           shopt -s nullglob
-          for lib in "$PUBLISH_DIR/ControlR.app/Contents/MonoBundle/"*.dylib; do
+          for lib in "$PUBLISH_DIR/PyTrain.app/Contents/MonoBundle/"*.dylib; do
             codesign \
               --force \
               --options runtime \
@@ -287,13 +287,13 @@ jobs:
             --force \
             --options runtime \
             --timestamp \
-            --entitlements "./ControlR.DesktopClient/Entitlements.plist" \
+            --entitlements "./PyTrain.DesktopClient/Entitlements.plist" \
             --keychain "$RUNNER_TEMP/build.keychain" \
             --sign "$IDENTITY_HASH" \
-            "$PUBLISH_DIR/ControlR.app"
+            "$PUBLISH_DIR/PyTrain.app"
 
           echo "Verifying signed app bundle..."
-          codesign --verify --deep --strict --verbose=2 "$PUBLISH_DIR/ControlR.app"
+          codesign --verify --deep --strict --verbose=2 "$PUBLISH_DIR/PyTrain.app"
 
       - name: Package Bundle (${{ matrix.arch }})
         env:
@@ -301,18 +301,18 @@ jobs:
           APPLE_API_KEY_ISSUER_ID: ${{ secrets.APPLE_API_KEY_ISSUER_ID }}
           APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
         run: |
-          PUBLISH_DIR="${{github.workspace}}/ControlR.DesktopClient/bin/publish/${{ matrix.arch }}"
-          DOWNLOADS_DIR="${{github.workspace}}/ControlR.Web.Server/wwwroot/downloads/${{ matrix.arch }}"
-          BUNDLE_ZIP="$DOWNLOADS_DIR/ControlR.Agent.bundle.zip"
+          PUBLISH_DIR="${{github.workspace}}/PyTrain.DesktopClient/bin/publish/${{ matrix.arch }}"
+          DOWNLOADS_DIR="${{github.workspace}}/PyTrain.Web.Server/wwwroot/downloads/${{ matrix.arch }}"
+          BUNDLE_ZIP="$DOWNLOADS_DIR/PyTrain.Agent.bundle.zip"
 
           if [ "${{ inputs.notarize_mac_bundle }}" = "true" ]; then
             API_KEY_PATH="$RUNNER_TEMP/apple_api_key.p8"
-            SUBMISSION_ZIP="$RUNNER_TEMP/ControlR.Agent.bundle.${{ matrix.arch }}.zip"
+            SUBMISSION_ZIP="$RUNNER_TEMP/PyTrain.Agent.bundle.${{ matrix.arch }}.zip"
 
             echo "$APPLE_API_KEY_P8" | base64 --decode > "$API_KEY_PATH"
 
             rm -f "$SUBMISSION_ZIP"
-            ditto -c -k --sequesterRsrc --keepParent "$PUBLISH_DIR/ControlR.app" "$SUBMISSION_ZIP"
+            ditto -c -k --sequesterRsrc --keepParent "$PUBLISH_DIR/PyTrain.app" "$SUBMISSION_ZIP"
 
             echo "Submitting bundle for notarization (${{ matrix.arch }})..."
             xcrun notarytool submit "$SUBMISSION_ZIP" \
@@ -322,7 +322,7 @@ jobs:
               --wait
 
             echo "Stapling notarization ticket to app bundle..."
-            xcrun stapler staple "$PUBLISH_DIR/ControlR.app"
+            xcrun stapler staple "$PUBLISH_DIR/PyTrain.app"
 
             rm -f "$SUBMISSION_ZIP"
             rm -f "$API_KEY_PATH"
@@ -330,13 +330,13 @@ jobs:
 
           echo "Creating final bundle ZIP for macOS ${{ matrix.arch }}..."
           rm -f "$BUNDLE_ZIP"
-          ditto -c -k --sequesterRsrc --keepParent "$PUBLISH_DIR/ControlR.app" "$BUNDLE_ZIP"
+          ditto -c -k --sequesterRsrc --keepParent "$PUBLISH_DIR/PyTrain.app" "$BUNDLE_ZIP"
 
       - name: Publish Installer (${{ matrix.arch }})
         run: |
-          DOWNLOADS_DIR="${{github.workspace}}/ControlR.Web.Server/wwwroot/downloads/${{ matrix.arch }}"
+          DOWNLOADS_DIR="${{github.workspace}}/PyTrain.Web.Server/wwwroot/downloads/${{ matrix.arch }}"
 
-          dotnet publish "./ControlR.Agent.Installer/" \
+          dotnet publish "./PyTrain.Agent.Installer/" \
             -c Release \
             -r ${{ matrix.arch }} \
             --self-contained \
@@ -348,23 +348,23 @@ jobs:
             -p:DebugType=none \
             -o "$DOWNLOADS_DIR"
 
-          if [ ! -f "$DOWNLOADS_DIR/ControlR.Agent.Installer" ]; then
+          if [ ! -f "$DOWNLOADS_DIR/PyTrain.Agent.Installer" ]; then
             ls -la "$DOWNLOADS_DIR" || true
-            echo "ERROR: Installer publish output missing: $DOWNLOADS_DIR/ControlR.Agent.Installer"
+            echo "ERROR: Installer publish output missing: $DOWNLOADS_DIR/PyTrain.Agent.Installer"
             exit 1
           fi
 
       - name: Sign Installer (${{ matrix.arch }})
         run: |
-          DOWNLOADS_DIR="${{github.workspace}}/ControlR.Web.Server/wwwroot/downloads/${{ matrix.arch }}"
-          INSTALLER_PATH="$DOWNLOADS_DIR/ControlR.Agent.Installer"
+          DOWNLOADS_DIR="${{github.workspace}}/PyTrain.Web.Server/wwwroot/downloads/${{ matrix.arch }}"
+          INSTALLER_PATH="$DOWNLOADS_DIR/PyTrain.Agent.Installer"
 
           echo "Code signing Installer for macOS ${{ matrix.arch }}..."
           codesign \
             --force \
             --options runtime \
             --timestamp \
-            --entitlements "./ControlR.Agent/Entitlements.plist" \
+            --entitlements "./PyTrain.Agent/Entitlements.plist" \
             --keychain "$RUNNER_TEMP/build.keychain" \
             --sign "$IDENTITY_HASH" \
             "$INSTALLER_PATH"
@@ -375,7 +375,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: Downloads-${{ matrix.arch }}
-          path: ControlR.Web.Server/wwwroot/downloads/${{ matrix.arch }}/
+          path: PyTrain.Web.Server/wwwroot/downloads/${{ matrix.arch }}/
           retention-days: ${{ env.RETENTION_DAYS_ARTIFACTS }}
 
       - name: Cleanup Keychain
@@ -420,14 +420,14 @@ jobs:
         shell: pwsh
         run: |
           # Build DesktopClient
-          dotnet publish ControlR.DesktopClient\ -c Release -f net10.0-windows8.0 -r ${{ matrix.arch }} --self-contained -o ControlR.DesktopClient\bin\publish\${{ matrix.arch }}\ -p:Version=$env:VERSION -p:FileVersion=$env:VERSION
+          dotnet publish PyTrain.DesktopClient\ -c Release -f net10.0-windows8.0 -r ${{ matrix.arch }} --self-contained -o PyTrain.DesktopClient\bin\publish\${{ matrix.arch }}\ -p:Version=$env:VERSION -p:FileVersion=$env:VERSION
 
       - name: Sign DesktopClient (${{ matrix.arch }})
         uses: ./.github/actions/windows-code-sign
         with:
           file-patterns: |
-            ${{ github.workspace }}\ControlR.DesktopClient\bin\publish\${{ matrix.arch }}\*.exe
-            ${{ github.workspace }}\ControlR.DesktopClient\bin\publish\${{ matrix.arch }}\*.dll
+            ${{ github.workspace }}\PyTrain.DesktopClient\bin\publish\${{ matrix.arch }}\*.exe
+            ${{ github.workspace }}\PyTrain.DesktopClient\bin\publish\${{ matrix.arch }}\*.dll
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -442,7 +442,7 @@ jobs:
           New-Item -Path ".build\staging-desktop\${{ matrix.arch }}" -ItemType Directory -Force | Out-Null
 
           # Create ZIP
-          Compress-Archive -Path "ControlR.DesktopClient\bin\publish\${{ matrix.arch }}\*" -DestinationPath ".build\staging-desktop\${{ matrix.arch }}\ControlR.DesktopClient.zip" -Force
+          Compress-Archive -Path "PyTrain.DesktopClient\bin\publish\${{ matrix.arch }}\*" -DestinationPath ".build\staging-desktop\${{ matrix.arch }}\PyTrain.DesktopClient.zip" -Force
 
       - name: Azure Login For Agent Publish (${{ matrix.arch }})
         uses: azure/login@v3
@@ -470,15 +470,15 @@ jobs:
           SIGNING_DESCRIPTION_URL: ${{ vars.SIGNING_DESCRIPTION_URL }}
           TIMESTAMP_URL: http://timestamp.digicert.com
         run: |
-          $agentPublishDir = "ControlR.Agent\bin\publish\${{ matrix.arch }}\"
+          $agentPublishDir = "PyTrain.Agent\bin\publish\${{ matrix.arch }}\"
           New-Item -Path $agentPublishDir -ItemType Directory -Force | Out-Null
-          New-Item -Path "ControlR.Web.Server\wwwroot\downloads\${{ matrix.arch }}" -ItemType Directory -Force | Out-Null
-          dotnet publish ControlR.Agent\ -c Release -r ${{ matrix.arch }} -o $agentPublishDir -p:PublishSingleFile=true -p:UseAppHost=true -p:Version=$env:VERSION -p:FileVersion=$env:VERSION -p:IncludeAllContentForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:IncludeAppSettingsInSingleFile=true -p:DebugType=none
+          New-Item -Path "PyTrain.Web.Server\wwwroot\downloads\${{ matrix.arch }}" -ItemType Directory -Force | Out-Null
+          dotnet publish PyTrain.Agent\ -c Release -r ${{ matrix.arch }} -o $agentPublishDir -p:PublishSingleFile=true -p:UseAppHost=true -p:Version=$env:VERSION -p:FileVersion=$env:VERSION -p:IncludeAllContentForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:IncludeAppSettingsInSingleFile=true -p:DebugType=none
 
       - name: Sign Agent (${{ matrix.arch }})
         uses: ./.github/actions/windows-code-sign
         with:
-          file-patterns: ${{ github.workspace }}\ControlR.Agent\bin\publish\${{ matrix.arch }}\ControlR.Agent.exe
+          file-patterns: ${{ github.workspace }}\PyTrain.Agent\bin\publish\${{ matrix.arch }}\PyTrain.Agent.exe
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -494,12 +494,12 @@ jobs:
           SIGNING_DESCRIPTION_URL: ${{ vars.SIGNING_DESCRIPTION_URL }}
           TIMESTAMP_URL: http://timestamp.digicert.com
         run: |
-          dotnet publish ControlR.Agent.Installer\ -c Release -r ${{ matrix.arch }} --self-contained -o ControlR.Web.Server\wwwroot\downloads\${{ matrix.arch }}\ -p:PublishSingleFile=true -p:UseAppHost=true -p:EnableCompressionInSingleFile=true -p:Version=$env:VERSION -p:FileVersion=$env:VERSION -p:DebugType=none
+          dotnet publish PyTrain.Agent.Installer\ -c Release -r ${{ matrix.arch }} --self-contained -o PyTrain.Web.Server\wwwroot\downloads\${{ matrix.arch }}\ -p:PublishSingleFile=true -p:UseAppHost=true -p:EnableCompressionInSingleFile=true -p:Version=$env:VERSION -p:FileVersion=$env:VERSION -p:DebugType=none
 
       - name: Sign Installer (${{ matrix.arch }})
         uses: ./.github/actions/windows-code-sign
         with:
-          file-patterns: ${{ github.workspace }}\ControlR.Web.Server\wwwroot\downloads\${{ matrix.arch }}\ControlR.Agent.Installer.exe
+          file-patterns: ${{ github.workspace }}\PyTrain.Web.Server\wwwroot\downloads\${{ matrix.arch }}\PyTrain.Agent.Installer.exe
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -510,22 +510,22 @@ jobs:
       - name: Create Bundle ZIP (${{ matrix.arch }})
         shell: pwsh
         run: |
-          $agentPublishDir = "ControlR.Agent\bin\publish\${{ matrix.arch }}\"
+          $agentPublishDir = "PyTrain.Agent\bin\publish\${{ matrix.arch }}\"
           $bundleDir = ".build\bundle\${{ matrix.arch }}"
           $desktopDir = Join-Path $bundleDir "DesktopClient"
           Remove-Item -Path $bundleDir -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -Path $desktopDir -ItemType Directory -Force | Out-Null
 
-          Copy-Item (Join-Path $agentPublishDir "ControlR.Agent.exe") (Join-Path $bundleDir "ControlR.Agent.exe") -Force
-          Copy-Item "ControlR.DesktopClient\bin\publish\${{ matrix.arch }}\*" $desktopDir -Recurse -Force
+          Copy-Item (Join-Path $agentPublishDir "PyTrain.Agent.exe") (Join-Path $bundleDir "PyTrain.Agent.exe") -Force
+          Copy-Item "PyTrain.DesktopClient\bin\publish\${{ matrix.arch }}\*" $desktopDir -Recurse -Force
 
-          Compress-Archive -Path "$bundleDir\*" -DestinationPath "ControlR.Web.Server\wwwroot\downloads\${{ matrix.arch }}\ControlR.Agent.bundle.zip" -Force
+          Compress-Archive -Path "$bundleDir\*" -DestinationPath "PyTrain.Web.Server\wwwroot\downloads\${{ matrix.arch }}\PyTrain.Agent.bundle.zip" -Force
 
       - name: Upload Downloads (${{ matrix.arch }})
         uses: actions/upload-artifact@v7
         with:
           name: Downloads-${{ matrix.arch }}
-          path: ControlR.Web.Server\wwwroot\downloads\${{ matrix.arch }}\
+          path: PyTrain.Web.Server\wwwroot\downloads\${{ matrix.arch }}\
           retention-days: ${{ env.RETENTION_DAYS_ARTIFACTS }}
 
   build-linux-binaries:
@@ -550,42 +550,42 @@ jobs:
       - name: Build DesktopClient (linux-x64)
         run: |
           # Build DesktopClient
-          dotnet publish ./ControlR.DesktopClient/ -c Release -f net10.0 -r linux-x64 --self-contained -o ./ControlR.DesktopClient/bin/publish/linux-x64/ -p:Version=$VERSION -p:FileVersion=$VERSION
+          dotnet publish ./PyTrain.DesktopClient/ -c Release -f net10.0 -r linux-x64 --self-contained -o ./PyTrain.DesktopClient/bin/publish/linux-x64/ -p:Version=$VERSION -p:FileVersion=$VERSION
 
           # Create staging directory
           mkdir -p ".build/staging-desktop/linux-x64"
 
           # Create ZIP
-          cd ./ControlR.DesktopClient/bin/publish/linux-x64
-          zip -r "${{ github.workspace}}/.build/staging-desktop/linux-x64/ControlR.DesktopClient.zip" .
+          cd ./PyTrain.DesktopClient/bin/publish/linux-x64
+          zip -r "${{ github.workspace}}/.build/staging-desktop/linux-x64/PyTrain.DesktopClient.zip" .
           cd ${{ github.workspace}}
 
       - name: Build Agent (linux-x64)
         run: |
-          mkdir -p "./ControlR.Agent/bin/publish/linux-x64"
-          mkdir -p "./ControlR.Web.Server/wwwroot/downloads/linux-x64"
-          dotnet publish ./ControlR.Agent/ -c Release -r linux-x64 -o ./ControlR.Agent/bin/publish/linux-x64/ -p:PublishSingleFile=true -p:UseAppHost=true -p:Version=$VERSION -p:FileVersion=$VERSION -p:IncludeAllContentForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:IncludeAppSettingsInSingleFile=true -p:DebugType=none
+          mkdir -p "./PyTrain.Agent/bin/publish/linux-x64"
+          mkdir -p "./PyTrain.Web.Server/wwwroot/downloads/linux-x64"
+          dotnet publish ./PyTrain.Agent/ -c Release -r linux-x64 -o ./PyTrain.Agent/bin/publish/linux-x64/ -p:PublishSingleFile=true -p:UseAppHost=true -p:Version=$VERSION -p:FileVersion=$VERSION -p:IncludeAllContentForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:IncludeAppSettingsInSingleFile=true -p:DebugType=none
 
       - name: Build Installer (linux-x64)
         run: |
-          dotnet publish ./ControlR.Agent.Installer/ -c Release -r linux-x64 --self-contained -o ./ControlR.Web.Server/wwwroot/downloads/linux-x64/ -p:PublishSingleFile=true -p:UseAppHost=true -p:EnableCompressionInSingleFile=true -p:Version=$VERSION -p:FileVersion=$VERSION -p:DebugType=none
+          dotnet publish ./PyTrain.Agent.Installer/ -c Release -r linux-x64 --self-contained -o ./PyTrain.Web.Server/wwwroot/downloads/linux-x64/ -p:PublishSingleFile=true -p:UseAppHost=true -p:EnableCompressionInSingleFile=true -p:Version=$VERSION -p:FileVersion=$VERSION -p:DebugType=none
 
       - name: Create Bundle ZIP (linux-x64)
         run: |
           rm -rf ".build/bundle/linux-x64"
           mkdir -p ".build/bundle/linux-x64/DesktopClient"
-          cp "./ControlR.Agent/bin/publish/linux-x64/ControlR.Agent" ".build/bundle/linux-x64/ControlR.Agent"
-          cp -R ./ControlR.DesktopClient/bin/publish/linux-x64/. ".build/bundle/linux-x64/DesktopClient/"
+          cp "./PyTrain.Agent/bin/publish/linux-x64/PyTrain.Agent" ".build/bundle/linux-x64/PyTrain.Agent"
+          cp -R ./PyTrain.DesktopClient/bin/publish/linux-x64/. ".build/bundle/linux-x64/DesktopClient/"
 
           cd .build/bundle/linux-x64
-          zip -r "${{ github.workspace }}/ControlR.Web.Server/wwwroot/downloads/linux-x64/ControlR.Agent.bundle.zip" .
+          zip -r "${{ github.workspace }}/PyTrain.Web.Server/wwwroot/downloads/linux-x64/PyTrain.Agent.bundle.zip" .
           cd "${{ github.workspace }}"
 
       - name: Upload Downloads (linux-x64)
         uses: actions/upload-artifact@v7
         with:
           name: Downloads-linux-x64
-          path: ControlR.Web.Server/wwwroot/downloads/linux-x64/
+          path: PyTrain.Web.Server/wwwroot/downloads/linux-x64/
           retention-days: ${{ env.RETENTION_DAYS_ARTIFACTS }}
 
   build-web-server:
@@ -614,59 +614,59 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: Downloads-win-x86
-          path: ControlR.Web.Server/wwwroot/downloads/win-x86/
+          path: PyTrain.Web.Server/wwwroot/downloads/win-x86/
 
       - name: Download Runtime Downloads (win-x64)
         uses: actions/download-artifact@v8
         with:
           name: Downloads-win-x64
-          path: ControlR.Web.Server/wwwroot/downloads/win-x64/
+          path: PyTrain.Web.Server/wwwroot/downloads/win-x64/
 
       - name: Download Runtime Downloads (linux-x64)
         uses: actions/download-artifact@v8
         with:
           name: Downloads-linux-x64
-          path: ControlR.Web.Server/wwwroot/downloads/linux-x64/
+          path: PyTrain.Web.Server/wwwroot/downloads/linux-x64/
 
       - name: Download Runtime Downloads (macOS ARM64)
         uses: actions/download-artifact@v8
         with:
           name: Downloads-osx-arm64
-          path: ControlR.Web.Server/wwwroot/downloads/osx-arm64/
+          path: PyTrain.Web.Server/wwwroot/downloads/osx-arm64/
 
       - name: Download Runtime Downloads (macOS x64)
         uses: actions/download-artifact@v8
         with:
           name: Downloads-osx-x64
-          path: ControlR.Web.Server/wwwroot/downloads/osx-x64/
+          path: PyTrain.Web.Server/wwwroot/downloads/osx-x64/
 
       - name: Create Version.txt
         shell: pwsh
         run: |
-          Set-Content -Path "ControlR.Web.Server/wwwroot/downloads/Version.txt" -Value $env:VERSION -Force -Encoding UTF8
+          Set-Content -Path "PyTrain.Web.Server/wwwroot/downloads/Version.txt" -Value $env:VERSION -Force -Encoding UTF8
 
       - name: Build Web Server
         shell: pwsh
         run: |
-          New-Item -Path "ControlR.Web.Server/bin/publish" -ItemType Directory -Force | Out-Null
-          dotnet publish ControlR.Web.Server/ -p:ExcludeApp_Data=true --runtime linux-x64 --configuration Release -p:Version=$env:VERSION -p:FileVersion=$env:VERSION --output ControlR.Web.Server/bin/publish --self-contained true
+          New-Item -Path "PyTrain.Web.Server/bin/publish" -ItemType Directory -Force | Out-Null
+          dotnet publish PyTrain.Web.Server/ -p:ExcludeApp_Data=true --runtime linux-x64 --configuration Release -p:Version=$env:VERSION -p:FileVersion=$env:VERSION --output PyTrain.Web.Server/bin/publish --self-contained true
 
       - name: Verify Download Artifacts
         shell: pwsh
         run: |
           $TestPaths = @(
-            "ControlR.Web.Server/bin/publish/wwwroot/downloads/Version.txt",
-            "ControlR.Web.Server/bin/publish/wwwroot/downloads/win-x86/ControlR.Agent.Installer.exe",
-            "ControlR.Web.Server/bin/publish/wwwroot/downloads/win-x64/ControlR.Agent.Installer.exe",
-            "ControlR.Web.Server/bin/publish/wwwroot/downloads/win-x86/ControlR.Agent.bundle.zip",
-            "ControlR.Web.Server/bin/publish/wwwroot/downloads/win-x64/ControlR.Agent.bundle.zip",
-            "ControlR.Web.Server/bin/publish/wwwroot/downloads/linux-x64/ControlR.Agent.Installer",
-            "ControlR.Web.Server/bin/publish/wwwroot/downloads/linux-x64/ControlR.Agent.bundle.zip",
-            "ControlR.Web.Server/bin/publish/wwwroot/downloads/osx-arm64/ControlR.Agent.Installer",
-            "ControlR.Web.Server/bin/publish/wwwroot/downloads/osx-arm64/ControlR.Agent.bundle.zip",
-            "ControlR.Web.Server/bin/publish/wwwroot/downloads/osx-x64/ControlR.Agent.Installer",
-            "ControlR.Web.Server/bin/publish/wwwroot/downloads/osx-x64/ControlR.Agent.bundle.zip",
-            "ControlR.Web.Server/bin/publish/novnc/vnc.html"
+            "PyTrain.Web.Server/bin/publish/wwwroot/downloads/Version.txt",
+            "PyTrain.Web.Server/bin/publish/wwwroot/downloads/win-x86/PyTrain.Agent.Installer.exe",
+            "PyTrain.Web.Server/bin/publish/wwwroot/downloads/win-x64/PyTrain.Agent.Installer.exe",
+            "PyTrain.Web.Server/bin/publish/wwwroot/downloads/win-x86/PyTrain.Agent.bundle.zip",
+            "PyTrain.Web.Server/bin/publish/wwwroot/downloads/win-x64/PyTrain.Agent.bundle.zip",
+            "PyTrain.Web.Server/bin/publish/wwwroot/downloads/linux-x64/PyTrain.Agent.Installer",
+            "PyTrain.Web.Server/bin/publish/wwwroot/downloads/linux-x64/PyTrain.Agent.bundle.zip",
+            "PyTrain.Web.Server/bin/publish/wwwroot/downloads/osx-arm64/PyTrain.Agent.Installer",
+            "PyTrain.Web.Server/bin/publish/wwwroot/downloads/osx-arm64/PyTrain.Agent.bundle.zip",
+            "PyTrain.Web.Server/bin/publish/wwwroot/downloads/osx-x64/PyTrain.Agent.Installer",
+            "PyTrain.Web.Server/bin/publish/wwwroot/downloads/osx-x64/PyTrain.Agent.bundle.zip",
+            "PyTrain.Web.Server/bin/publish/novnc/vnc.html"
           )
           foreach ($TestPath in $TestPaths) {
             if (!(Test-Path $TestPath)) {
@@ -679,7 +679,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: Server
-          path: ControlR.Web.Server/bin/publish
+          path: PyTrain.Web.Server/bin/publish
           retention-days: ${{ env.RETENTION_DAYS_ARTIFACTS }}
 
       - name: Upload docker-compose

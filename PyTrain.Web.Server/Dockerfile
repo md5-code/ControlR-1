@@ -1,0 +1,36 @@
+# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+RUN apt update
+RUN apt -y install curl
+USER $APP_UID
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
+EXPOSE 9222
+
+# This stage is used to build the service project
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY . .
+RUN dotnet restore "./PyTrain.Web.Server/PyTrain.Web.Server.csproj"
+WORKDIR "/src/PyTrain.Web.Server"
+RUN dotnet build "./PyTrain.Web.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# This stage is used to publish the service project to be copied to the final stage
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+ARG CURRENT_VERSION=1.0.0
+RUN dotnet publish "./PyTrain.Web.Server.csproj" -c $BUILD_CONFIGURATION -p:Version=$CURRENT_VERSION -p:FileVersion=$CURRENT_VERSION -o /app/publish /p:UseAppHost=false
+
+# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+RUN mkdir -p /app/novnc
+ENTRYPOINT ["dotnet", "PyTrain.Web.Server.dll"]
+
+HEALTHCHECK \
+  CMD curl -f http://localhost:8080/health || exit 1

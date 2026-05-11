@@ -1,0 +1,113 @@
+using Avalonia.Controls;
+using PyTrain.DesktopClient.Common.ServiceInterfaces;
+using PyTrain.DesktopClient.Common.Services;
+using PyTrain.DesktopClient.Linux.XdgPortal;
+using PyTrain.DesktopClient.Linux.Services;
+using PyTrain.DesktopClient.ViewModels;
+using PyTrain.DesktopClient.ViewModels.Linux;
+using PyTrain.Libraries.NativeInterop.Linux;
+using PyTrain.Libraries.NativeInterop.Unix;
+using PyTrain.Libraries.Serilog;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace PyTrain.DesktopClient.Linux;
+
+public static class ServiceRegistrationExtensions
+{
+  public static IServiceCollection AddDesktopAppPlatformServices(this IServiceCollection services)
+  {
+    services
+      .AddSharedPlatformServices()
+      .AddSingleton<INavigationItemProvider, LinuxNavigationItemProvider>()
+      .AddSingleton<IRemoteControlHostBuilderFactory, LinuxRemoteControlHostBuilderFactory>();
+
+    return GetDesktopEnvironmentDetector().GetDesktopEnvironment() switch
+    {
+      DesktopEnvironmentType.Wayland => services
+        .AddSingleton<IPermissionsViewModelWayland, PermissionsViewModelWayland>()
+        .AddHostedService<RemoteControlPermissionMonitorWayland>(),
+      DesktopEnvironmentType.X11 => services
+        .AddSingleton<IPermissionsViewModel, PermissionsViewModel>(),
+      _ => throw new NotSupportedException("Unsupported desktop environment detected.")
+    };
+  }
+
+  public static IHostApplicationBuilder AddRemoteControlPlatformServices(this IHostApplicationBuilder builder)
+  {
+    builder.Services.AddSharedPlatformServices();
+    AddInputSimulator(builder.Services);
+    AddRemoteControlHostedServices(builder.Services);
+
+    return builder;
+  }
+
+  public static IServiceCollection AddSharedPlatformServices(this IServiceCollection services)
+  {
+    var desktopEnvironment = GetDesktopEnvironmentDetector().GetDesktopEnvironment();
+    var logger = new SerilogLogger<IServiceCollection>();
+
+    switch (desktopEnvironment)
+    {
+      case DesktopEnvironmentType.Wayland:
+        logger.LogInformation("Detected Wayland desktop environment.");
+        services
+          .AddSingleton<IXdgDesktopPortalFactory, XdgDesktopPortalFactory>()
+          .AddSingleton(provider => provider.GetRequiredService<IXdgDesktopPortalFactory>().GetOrCreateDefault())
+          .AddSingleton<DisplayManagerWayland>()
+          .AddSingleton<IDisplayManager>(provider => provider.GetRequiredService<DisplayManagerWayland>())
+          .AddSingleton<IDisplayManagerWayland>(provider => provider.GetRequiredService<DisplayManagerWayland>())
+          .AddSingleton<IScreenGrabberFactory, ScreenGrabberFactory<ScreenGrabberWayland>>()
+          .AddSingleton(provider => provider.GetRequiredService<IScreenGrabberFactory>().GetOrCreateDefault())
+          .AddSingleton<IClipboardManager, ClipboardManagerGtk>()
+          .AddSingleton<IWaylandPermissionProvider, WaylandPermissionProvider>()
+          .AddSingleton<IPipeWireStreamFactory, PipeWireStreamFactory>();
+        break;
+      case DesktopEnvironmentType.X11:
+        logger.LogInformation("Detected X11 desktop environment.");
+        services
+          .AddSingleton<IDisplayManager, DisplayManagerX11>()
+          .AddSingleton<IScreenGrabberFactory, ScreenGrabberFactory<ScreenGrabberX11>>()
+          .AddSingleton(provider => provider.GetRequiredService<IScreenGrabberFactory>().GetOrCreateDefault())
+          .AddSingleton<IClipboardManager, ClipboardManagerX11>();
+        break;
+      default:
+        logger.LogError("Could not detect desktop environment.");
+        throw new NotSupportedException("Unsupported desktop environment detected.");
+    }
+
+    return services
+      .AddSingleton<IDesktopEnvironmentDetector, DesktopEnvironmentDetector>()
+      .AddSingleton<IFileSystemUnix, FileSystemUnix>()
+      .AddSingleton<ICaptureMetrics, CaptureMetricsLinux>();
+  }
+
+  private static IServiceCollection AddInputSimulator(IServiceCollection services)
+  {
+    return GetDesktopEnvironmentDetector().GetDesktopEnvironment() switch
+    {
+      DesktopEnvironmentType.Wayland => services
+        .AddSingleton<IInputSimulator, InputSimulatorWayland>(),
+      DesktopEnvironmentType.X11 => services
+        .AddSingleton<IInputSimulator, InputSimulatorX11>(),
+      _ => throw new NotSupportedException("Unsupported desktop environment detected.")
+    };
+  }
+
+  private static IServiceCollection AddRemoteControlHostedServices(IServiceCollection services)
+  {
+    return GetDesktopEnvironmentDetector().GetDesktopEnvironment() switch
+    {
+      DesktopEnvironmentType.Wayland => services.AddHostedService<WaylandDisplaySettingsWatcher>(),
+      DesktopEnvironmentType.X11 => services.AddHostedService<CursorWatcherX11>(),
+      _ => throw new NotSupportedException("Unsupported desktop environment detected.")
+    };
+  }
+
+  private static DesktopEnvironmentDetector GetDesktopEnvironmentDetector()
+  {
+    return new DesktopEnvironmentDetector(
+      new SerilogLogger<DesktopEnvironmentDetector>());
+  }
+}

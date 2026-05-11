@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFramework>$(WindowsTargetFramework)</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Devolutions.Cadeau" Condition="'$(IsWindows)' == 'true'" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.v3.runner.console">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference
+      Include="..\..\PyTrain.DesktopClient.Windows\PyTrain.DesktopClient.Windows.csproj" />
+    <ProjectReference
+      Include="..\..\Libraries\PyTrain.Libraries.TestingUtilities\PyTrain.Libraries.TestingUtilities.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Bitbound.Analyzers.MemberOrder">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(IsWindows)' != 'true'">
+    <IsTestProject>false</IsTestProject>
+    <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
+    <SkipCopyBuildProduct>true</SkipCopyBuildProduct>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsWindows)' != 'true'">
+    <ProjectCapability Remove="TestContainer" />
+    <ProjectCapability Remove="TestExecutable" />
+  </ItemGroup>
+</Project>

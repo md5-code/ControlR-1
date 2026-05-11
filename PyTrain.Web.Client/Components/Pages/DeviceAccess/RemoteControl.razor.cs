@@ -1,0 +1,469 @@
+using System.Net.WebSockets;
+using PyTrain.Libraries.Api.Contracts.Dtos.Devices;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+
+namespace PyTrain.Web.Client.Components.Pages.DeviceAccess;
+
+// ReSharper disable once ClassNeverInstantiated.Global
+public partial class RemoteControl : ViewportAwareComponent
+{
+  private readonly uint _commandTimeoutSeconds = 30;
+
+  private string? _alertMessage;
+  private Severity _alertSeverity;
+  private bool _isReconnecting;
+  private string? _loadingMessage = "Connecting";
+  private DesktopSession[]? _systemSessions;
+
+  [SupplyParameterFromQuery]
+  public required Guid DeviceId { get; init; }
+  [Inject]
+  public required IDeviceState DeviceState { get; init; }
+  [Inject]
+  public required IDialogService DialogService { get; init; }
+  [Inject]
+  public required IEffectiveUserPreferences EffectiveUserPreferences { get; init; }
+  [Inject]
+  public required ILogger<RemoteControl> Logger { get; init; }
+  [Inject]
+  public required NavigationManager NavManager { get; init; }
+  [Inject]
+  public required IRemoteControlState RemoteControlState { get; init; }
+  [Inject]
+  public required IViewerRemoteControlStream RemoteControlStream { get; init; }
+  [Inject]
+  public required IScreenWake ScreenWake { get; init; }
+  [Inject]
+  public required ISnackbar Snackbar { get; init; }
+  [Inject]
+  public required IUserPreferencesProvider UserPreferences { get; init; }
+  [Inject]
+  public required IHubConnection<IViewerHub> ViewerHub { get; init; }
+  [Inject]
+  public required IWebAssemblyHostEnvironment WebAssemblyEnv { get; init; }
+
+  private string AlertIcon =>
+    _alertSeverity switch
+    {
+      Severity.Normal or Severity.Info => Icons.Material.Outlined.Info,
+      Severity.Success => Icons.Material.Outlined.CheckCircleOutline,
+      Severity.Warning => Icons.Material.Outlined.Warning,
+      Severity.Error => Icons.Material.Outlined.Error,
+      _ => Icons.Material.Outlined.Info
+    };
+  private SignalingState CurrentState
+  {
+    get
+    {
+      if (_isReconnecting)
+      {
+        return SignalingState.Reconnecting;
+      }
+
+      if (RemoteControlStream.State == WebSocketState.Open)
+      {
+        return SignalingState.ConnectionActive;
+      }
+
+      if (!string.IsNullOrWhiteSpace(_loadingMessage))
+      {
+        return SignalingState.Loading;
+      }
+
+      if (!string.IsNullOrWhiteSpace(_alertMessage))
+      {
+        return SignalingState.Alert;
+      }
+
+      if (DeviceState.CurrentDevice.Platform
+          is not SystemPlatform.Windows
+          and not SystemPlatform.MacOs
+          and not SystemPlatform.Linux)
+      {
+        return SignalingState.UnsupportedOperatingSystem;
+      }
+
+      return _systemSessions is not null
+        ? SignalingState.SessionSelect
+        : SignalingState.Unknown;
+    }
+  }
+  private bool IsRemoteDisplayVisible => CurrentState == SignalingState.ConnectionActive;
+  private string OuterDivClass
+  {
+    get
+    {
+      return CurrentState == SignalingState.ConnectionActive
+        ? "h-100"
+        : "h-100 pa-4";
+    }
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    await base.OnInitializedAsync();
+    try
+    {
+      if (CurrentState == SignalingState.ConnectionActive)
+      {
+        return;
+      }
+
+      await GetDeviceDesktopSessions(false);
+
+      if (WebAssemblyEnv.IsDevelopment())
+      {
+        // Automatically enable view-only mode in development.
+        RemoteControlState.IsViewOnlyEnabled = true;
+      }
+    }
+    catch (Exception ex)
+    {
+      const string message = "Failed to retrieve desktop sessions on remote device.";
+      Logger.LogError(ex, message);
+      _alertMessage = message;
+      _alertSeverity = Severity.Error;
+    }
+    finally
+    {
+      _loadingMessage = null;
+    }
+  }
+
+  private async Task CleanupRemoteControlSession(bool sendCloseStreamingSession, bool refreshSessionsQuiet)
+  {
+    RemoteControlState.ConnectionClosedRegistration?.Dispose();
+    RemoteControlState.ConnectionClosedRegistration = null;
+    _systemSessions = [];
+    RemoteControlState.CurrentSession = null;
+
+    if (sendCloseStreamingSession)
+    {
+      using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+      await RemoteControlStream.SendCloseStreamingSession(cts.Token);
+    }
+
+    await RemoteControlStream.Close();
+    await ScreenWake.SetScreenWakeLock(false);
+    await GetDeviceDesktopSessions(refreshSessionsQuiet);
+  }
+
+  private async Task GetDeviceDesktopSessions(bool quiet)
+  {
+    try
+    {
+      _systemSessions = await ViewerHub.Server.GetActiveDesktopSessions(DeviceState.CurrentDevice.Id);
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Failed to get active sessions.");
+      if (!quiet)
+      {
+        Snackbar.Add("Failed to get active sessions", Severity.Warning);
+        _alertMessage = "Failed to get active sessions.";
+        _alertSeverity = Severity.Warning;
+      }
+    }
+  }
+
+  private async Task HandleDisconnectRequested()
+  {
+    try
+    {
+      _loadingMessage = "Refreshing sessions";
+      await CleanupRemoteControlSession(sendCloseStreamingSession: true, refreshSessionsQuiet: false);
+      Snackbar.Add("Remote control session disconnected", Severity.Info);
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error while disconnecting from remote control session.");
+      _alertMessage = "An error occurred while disconnecting from the remote control session.";
+    }
+    finally
+    {
+      _loadingMessage = null;
+    }
+  }
+
+  private async Task HandleFatalStreamingError(string message)
+  {
+    try
+    {
+      _isReconnecting = false;
+      _loadingMessage = null;
+
+      _alertMessage = message;
+      _alertSeverity = Severity.Error;
+
+      await CleanupRemoteControlSession(sendCloseStreamingSession: false, refreshSessionsQuiet: true);
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error while handling fatal streaming error.");
+    }
+    finally
+    {
+      await InvokeAsync(StateHasChanged);
+    }
+  }
+
+  private async Task HandleRefreshSessionsClicked()
+  {
+    await GetDeviceDesktopSessions(false);
+    Snackbar.Add("Sessions refreshed", Severity.Info);
+  }
+
+  private async Task HandleReloadClicked()
+  {
+    _alertMessage = null;
+    _loadingMessage = null;
+    await GetDeviceDesktopSessions(false);
+  }
+
+  private async Task HandleStreamingConnectionLost()
+  {
+    if (await Reconnect())
+    {
+      return;
+    }
+
+    RemoteControlState.CurrentSession = null;
+    Snackbar.Add("Connection lost", Severity.Warning);
+    await GetDeviceDesktopSessions(false);
+    await ScreenWake.SetScreenWakeLock(false);
+    await InvokeAsync(StateHasChanged);
+  }
+
+  private async Task InitializeCaptureSettings()
+  {
+    var preferences = await UserPreferences.GetPreferences();
+    RemoteControlState.CaptureCursor = preferences.CaptureCursor;
+    RemoteControlState.IsAutoQualityEnabled = preferences.IsAutoQualityEnabled;
+    RemoteControlState.ManualQuality = preferences.ManualQuality;
+    RemoteControlState.AutoQualityLowerThresholdMbps = preferences.AutoQualityLowerThresholdMbps;
+    RemoteControlState.AutoQualityMaximum = preferences.AutoQualityMaximum;
+    RemoteControlState.AutoQualityMinimum = preferences.AutoQualityMinimum;
+    RemoteControlState.AutoQualityUpperThresholdMbps = preferences.AutoQualityUpperThresholdMbps;
+    RemoteControlState.IsMaxBandwidthEnabled = preferences.IsMaxBandwidthEnabled;
+    RemoteControlState.MaxBandwidthMbps = preferences.MaxBandwidthMbps;
+  }
+
+  private async Task PreviewSession(DesktopSession desktopSession)
+  {
+    try
+    {
+      var parameters = new DialogParameters
+      {
+        { nameof(DesktopPreviewDialog.Device), DeviceState.CurrentDevice },
+        { nameof(DesktopPreviewDialog.Session), desktopSession }
+      };
+
+      var dialogOptions = new DialogOptions
+      {
+        BackdropClick = false,
+        FullWidth = true,
+        MaxWidth = MaxWidth.ExtraExtraLarge,
+        FullScreen = CurrentBreakpoint < Breakpoint.Md,
+        CloseOnEscapeKey = true
+      };
+
+      await DialogService.ShowAsync<DesktopPreviewDialog>(
+        $"Desktop Preview - {desktopSession.Name}",
+        parameters,
+        dialogOptions);
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error while requesting remote control session preview.");
+      Snackbar.Add("Error while requesting session preview", Severity.Error);
+      await InvokeAsync(StateHasChanged);
+    }
+  }
+
+  private async Task<bool> Reconnect()
+  {
+    try
+    {
+      _isReconnecting = true;
+      _alertMessage = null;
+      _loadingMessage = null;
+
+      await InvokeAsync(StateHasChanged);
+
+      for (var i = 0; i < 5; i++)
+      {
+        try
+        {
+          if (i > 0)
+          {
+            await Task.Delay(3_000);
+          }
+
+          await GetDeviceDesktopSessions(true);
+          if (_systemSessions is null)
+          {
+            continue;
+          }
+
+          if (_systemSessions.Length > 1)
+          {
+            break;
+          }
+
+          if (await StartRemoteControl(_systemSessions[0], true))
+          {
+            return true;
+          }
+        }
+        catch (Exception ex)
+        {
+          Logger.LogError(ex, "Error while reconnecting.");
+        }
+      }
+
+      _alertMessage = "Failed to reconnect.";
+      _alertSeverity = Severity.Warning;
+      return false;
+    }
+    finally
+    {
+      _isReconnecting = false;
+      await InvokeAsync(StateHasChanged);
+    }
+  }
+
+  private async Task RequestPermissions(DesktopSession session)
+  {
+    try
+    {
+      Snackbar.Add("Requesting permission for remote control", Severity.Info);
+      var result = await ViewerHub.Server.RequestRemoteControlPermission(DeviceId, session.ProcessId);
+      if (result.IsSuccess)
+      {
+        Snackbar.Add("Permission granted. Refreshing sessions.", Severity.Success);
+        await GetDeviceDesktopSessions(false);
+      }
+      else
+      {
+        Snackbar.Add($"Permission request failed: {result.Reason}", Severity.Warning);
+      }
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error while requesting remote control permissions.");
+      Snackbar.Add("Error requesting permissions", Severity.Error);
+    }
+  }
+
+  private async Task SendCaptureSettings()
+  {
+    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+    await RemoteControlStream.SendCaptureSettings(
+      new UpdateCaptureSettingsDto(
+        RemoteControlState.CaptureCursor,
+        RemoteControlState.IsAutoQualityEnabled,
+        RemoteControlState.ManualQuality,
+        RemoteControlState.AutoQualityLowerThresholdMbps,
+        RemoteControlState.AutoQualityMaximum,
+        RemoteControlState.AutoQualityMinimum,
+        RemoteControlState.AutoQualityUpperThresholdMbps,
+        RemoteControlState.IsMaxBandwidthEnabled,
+        RemoteControlState.MaxBandwidthMbps),
+      cts.Token);
+  }
+
+  private async Task<bool> StartRemoteControl(DesktopSession desktopSession, bool quiet)
+  {
+    try
+    {
+      if (!quiet)
+      {
+        _loadingMessage = "Starting remote control session";
+      }
+
+      RemoteControlState.IsBlockUserInputEnabled = false;
+      RemoteControlState.IsPrivacyScreenEnabled = false;
+      await InitializeCaptureSettings();
+
+      _systemSessions = null;
+      
+      var session = new RemoteControlSession(
+        DeviceState.CurrentDevice,
+        desktopSession.SystemSessionId,
+        desktopSession.ProcessId,
+        desktopSession.Type);
+
+      var accessToken = RandomGenerator.CreateAccessToken();
+
+      var serverUri = new Uri(NavManager.BaseUri).ToWebsocketUri();
+      var desktopRelayUri = RelayUriBuilder.Build(
+        serverUri,
+        AppConstants.WebSocketRelayPath,
+        session.SessionId,
+        accessToken,
+        RelayRole.Responder,
+        _commandTimeoutSeconds);
+
+      if (!quiet)
+      {
+        Snackbar.Add($"Starting remote control in system session {desktopSession.SystemSessionId}", Severity.Info);
+      }
+
+      var notifyUserPreference = await EffectiveUserPreferences.GetNotifyUserOnSessionStart();
+      var requestDto = new RemoteControlSessionRequestDto(
+        session.SessionId,
+        desktopRelayUri,
+        session.TargetSystemSession,
+        session.TargetProcessId,
+        session.Device.Id,
+        notifyUserPreference.Value,
+        RequireConsent: false);
+
+      var remoteControlSessionResult = await ViewerHub.Server.RequestRemoteControlSession(session.Device.Id, requestDto);
+
+      if (!remoteControlSessionResult.IsSuccess)
+      {
+        _alertMessage = remoteControlSessionResult.Reason;
+        _alertSeverity = Severity.Error;
+        await InvokeAsync(StateHasChanged);
+        return false;
+      }
+
+      var viewerRelayUri = RelayUriBuilder.Build(
+        serverUri,
+        AppConstants.WebSocketRelayPath,
+        session.SessionId,
+        accessToken,
+        RelayRole.Requester,
+        _commandTimeoutSeconds);
+
+      using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(_commandTimeoutSeconds));
+      await RemoteControlStream.Connect(viewerRelayUri, cts.Token);
+
+      RemoteControlState.ConnectionClosedRegistration?.Dispose();
+      RemoteControlState.ConnectionClosedRegistration = RemoteControlStream.OnClosed(HandleStreamingConnectionLost);
+      RemoteControlState.CurrentSession = session;
+      await SendCaptureSettings();
+      
+      await ScreenWake.SetScreenWakeLock(true);
+      return true;
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error while requesting remote control session.");
+      if (!quiet)
+      {
+        _alertMessage = "An error occurred while requesting the remote control session.";
+        _alertSeverity = Severity.Error;
+      }
+
+      RemoteControlState.CurrentSession = null;
+      return false;
+    }
+    finally
+    {
+      _loadingMessage = null;
+      await InvokeAsync(StateHasChanged);
+    }
+  }
+}

@@ -1,18 +1,18 @@
-name: controlr
+name: pytrain
 
 services:
-  controlr:
-    image: controlr:local
+  pytrain:
+    image: pytrain:local
     build:
       context: ../
-      dockerfile: ControlR.Web.Server/Dockerfile
+      dockerfile: PyTrain.Web.Server/Dockerfile
     ports: !reset []
     environment:
-      ControlR_AppOptions__EnablePublicRegistration: "true"
-      ControlR_AppOptions__RequireUserEmailConfirmation: "false"
-      ControlR_AppOptions__DisableEmailSending: "true"
-      ControlR_AppOptions__EnableNetworkTrust: "true"
-      ControlR_AppOptions__AuthenticatorIssuerName: "PyTrain"
+      PyTrain_AppOptions__EnablePublicRegistration: "true"
+      PyTrain_AppOptions__RequireUserEmailConfirmation: "false"
+      PyTrain_AppOptions__DisableEmailSending: "true"
+      PyTrain_AppOptions__EnableNetworkTrust: "true"
+      PyTrain_AppOptions__AuthenticatorIssuerName: "PyTrain"
 
   aspire:
     ports: !override

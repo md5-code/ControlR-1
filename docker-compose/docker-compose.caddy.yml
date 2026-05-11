@@ -1,4 +1,4 @@
-name: controlr
+name: pytrain
 
 services:
   caddy:
@@ -6,13 +6,13 @@ services:
     container_name: caddy
     restart: unless-stopped
     depends_on:
-      - controlr
+      - pytrain
     ports:
       - "80:80"
       - "443:443"
       - "443:443/udp"
     networks:
-      - controlr-network
+      - pytrain-network
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

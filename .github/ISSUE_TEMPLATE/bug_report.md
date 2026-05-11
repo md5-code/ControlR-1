@@ -3,7 +3,6 @@ name: Bug report
 about: Create a report to help us improve
 title: "[BUG] - Title Here"
 labels: bug
-assignees: bitbound
 ---
 
 ### Issue Checklist
@@ -12,7 +11,7 @@ assignees: bitbound
 - [ ] Searched for existing issues
 - [ ] Filled out the below sections
 - [ ] Does not relate to hosting (server configuration, reverse proxy, Cloudflare, etc.)
-  - Connection issues are likely due to something in between the browser/agent and the ControlR backend app, not the app itself.
+  - Connection issues are likely due to something in between the browser/agent and the PyTrain backend app, not the app itself.
   - Please go to the Discussions section for help with hosting setups.
 
 ### Describe the bug

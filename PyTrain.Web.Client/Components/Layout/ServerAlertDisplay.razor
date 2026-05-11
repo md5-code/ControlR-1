@@ -1,0 +1,102 @@
+@inject IPyTrainApi PyTrainApi
+@inject ILocalStorageAccessor LocalStorage
+@inject AuthenticationStateProvider AuthState
+@inject ILogger<ServerAlertDisplay> Logger
+
+@if (_isVisible && _alert is not null)
+{
+  <div class="@Class">
+    <MudAlert Severity="_mudSeverity"
+              ShowCloseIcon="_alert.IsDismissable"
+              CloseIconClicked="HandleDismiss"
+              Class="ma-0 rounded-0">
+      @_alert.Message
+    </MudAlert>
+  </div>
+}
+
+@code {
+  private ServerAlertResponseDto? _alert;
+  private bool _isVisible;
+  private Severity _mudSeverity = Severity.Info;
+
+  [Parameter]
+  public string? Class { get; set; }
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      if (!RendererInfo.IsInteractive)
+      {
+        return;
+      }
+
+      if (!await AuthState.IsAuthenticated())
+      {
+        return;
+      }
+
+      var result = await PyTrainApi.ServerAlert.GetServerAlert();
+      if (!result.IsSuccess || result.Value is null || !result.Value.HasAlertSet)
+      {
+        return;
+      }
+
+      _alert = result.Value;
+
+      if (!_alert.IsEnabled)
+      {
+        return;
+      }
+
+      // Map MessageSeverity to MudBlazor Severity
+      _mudSeverity = _alert.Severity.ToMudSeverity();
+
+      // Check if the user previously dismissed this alert (only if not sticky)
+      if (!_alert.IsSticky && 
+          await HasAlertBeenDismissed(_alert.Message, _alert.Severity))
+      {
+        return;
+      }
+
+      _isVisible = true;
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error loading server alert");
+    }
+  }
+
+  private async Task HandleDismiss()
+  {
+    try
+    {
+      if (_alert is null)
+      {
+        return;
+      }
+
+      _isVisible = false;
+
+      // If not sticky, save dismiss state to localStorage
+      if (!_alert.IsSticky)
+      {
+        await LocalStorage.SetItem(LocalStorageKey, $"{_alert.Message}-{_alert.Severity}");
+
+      }
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error saving dismiss state");
+    }
+  }
+
+  private async Task<bool> HasAlertBeenDismissed(string message, MessageSeverity severity)
+  {
+    var existing = await LocalStorage.GetItem(LocalStorageKey);
+    var newMessage = $"{message}-{severity}";
+    return existing == newMessage;
+  }
+  private const string LocalStorageKey = "pytrain-server-alert-dismissed";
+}

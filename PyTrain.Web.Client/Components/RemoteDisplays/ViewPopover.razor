@@ -1,0 +1,237 @@
+@using System.ComponentModel
+@using PyTrain.Libraries.Api.Contracts.Dtos.RemoteControlDtos
+@inherits DisposableComponent
+@inject IRemoteControlState RemoteControlState
+@inject IViewerRemoteControlStream RemoteControlStream
+@inject ISnackbar Snackbar
+@inject ILogger<ViewPopover> Logger
+@inject IDeviceState DeviceState
+
+<div class="d-flex flex-column gap-4">
+  <div>
+    <MudText Typo="Typo.caption" Class="mb-2">View Mode</MudText>
+    <MudRadioGroup Value="RemoteControlState.ViewMode" ValueChanged="@((ViewMode v) => HandleViewModeChanged(v))">
+      <MudRadio Value="@(ViewMode.Fit)" Color="Color.Primary" Size="Size.Small">
+        Fit
+      </MudRadio>
+      <MudRadio Value="@(ViewMode.Stretch)" Color="Color.Primary" Size="Size.Small">
+        Stretch
+      </MudRadio>
+      <MudRadio Value="@(ViewMode.Scale)" Color="Color.Primary" Size="Size.Small">
+        Scale
+      </MudRadio>
+    </MudRadioGroup>
+
+    @if (RemoteControlState.ViewMode == ViewMode.Scale)
+    {
+      <div class="mt-4">
+        <MudText Typo="Typo.caption" Class="mb-2">Scale Level</MudText>
+        <div class="d-flex align-center gap-2">
+          <MudSlider Value="RemoteControlState.RendererScale" ValueChanged="@((double v) => HandleScaleChanged(v))"
+            Min="RemoteControlState.MinRendererScale" Max="RemoteControlState.MaxRendererScale" Step="0.05"
+            Color="Color.Primary" Class="flex-grow-1" />
+          <MudNumericField Value="RemoteControlState.RendererScale" ValueChanged="@((double v) => HandleScaleChanged(v))"
+            Min="RemoteControlState.MinRendererScale" Max="RemoteControlState.MaxRendererScale" Step="0.1"
+            Variant="Variant.Outlined" Margin="Margin.Dense" Style="width: 80px;" HideSpinButtons="false" />
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <MudText Typo="Typo.caption" Class="mb-2">Auto Pan</MudText>
+        <div>
+          <MudTooltip Text="Automatically pan the view based on cursor position">
+            <MudSwitch Value="RemoteControlState.IsAutoPanEnabled"
+              ValueChanged="@((bool v) => RemoteControlState.IsAutoPanEnabled = v)"
+              Color="Color.Primary" Label="Follow cursor" />
+          </MudTooltip>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div>
+    <MudText Typo="Typo.caption" Class="mb-2">Display(s)</MudText>
+
+    <MudRadioGroup Value="RemoteControlState.SelectedDisplay"
+      ValueChanged="@(async (DisplayDto d) => await HandleDisplayChanged(d))">
+      @foreach (var display in RemoteControlState.DisplayData ?? [])
+      {
+        <MudRadio Value="@display" Color="Color.Primary" Size="Size.Small">
+          <div class="d-flex flex-column">
+            <span>@(display.Name)</span>
+            @if (!string.IsNullOrWhiteSpace(display.DisplayId))
+            {
+              <MudText Typo="Typo.caption" Color="Color.Tertiary">
+                (ID: @(display.DisplayId))
+              </MudText>
+            }
+          </div>
+        </MudRadio>
+      }
+    </MudRadioGroup>
+
+    @if ((RemoteControlState.DisplayData?.Length ?? 0) > 1)
+    {
+      <div class="display-layout-container mt-4">
+        @foreach (var display in RemoteControlState.DisplayData ?? [])
+        {
+          var isSelected = RemoteControlState.SelectedDisplay?.DisplayId == display.DisplayId;
+          var style = GetDisplayLayoutStyle(display);
+          <div class="display-layout-item @(isSelected ? "selected" : "")" style="@style"
+            @onclick="@(async () => await HandleDisplayChanged(display))">
+            <span class="display-index">@(display.Index + 1)</span>
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+
+  @if (DeviceState.TryGetCurrentDevice()?.Platform == SystemPlatform.Windows)
+  {
+    <div>
+      <MudText Typo="Typo.caption" Class="mb-2">Privacy</MudText>
+      <div>
+        <MudTooltip Text="Black out the physical display while remote control remains visible">
+          <MudSwitch Value="RemoteControlState.IsPrivacyScreenEnabled"
+            ValueChanged="@((bool v) => HandlePrivacyScreenToggled(v))" Color="Color.Secondary" Label="Privacy Screen"
+            ThumbIcon="@(Icons.Material.Filled.VisibilityOff)" />
+        </MudTooltip>
+      </div>
+    </div>
+  }
+
+  @if (DeviceState.TryGetCurrentDevice()?.Platform is SystemPlatform.Windows or SystemPlatform.MacOs)
+  {
+    <div>
+      <MudText Typo="Typo.caption" Class="mb-2 d-block">Capture</MudText>
+      <MudTooltip Text="Include the remote cursor in the captured image stream.">
+        <MudCheckBox T="bool"
+                     Value="RemoteControlState.CaptureCursor"
+                     ValueChanged="@((bool value) => HandleCaptureCursorChanged(value))"
+                     Label="Capture remote cursor" />
+      </MudTooltip>
+    </div>
+  }
+</div>
+
+@code {
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    await base.OnAfterRenderAsync(firstRender);
+    if (firstRender)
+    {
+      Disposables.Add(
+        RemoteControlState.OnStateChanged(() => InvokeAsync(StateHasChanged)));
+    }
+  }
+
+  private string GetDisplayLayoutStyle(DisplayDto display)
+  {
+    var displays = RemoteControlState.DisplayData ?? [];
+    if (displays.Length == 0)
+    {
+      return string.Empty;
+    }
+
+    var minLeft = displays.Min(d => d.LayoutBounds.X);
+    var minTop = displays.Min(d => d.LayoutBounds.Y);
+    var maxRight = displays.Max(d => d.LayoutBounds.X + d.LayoutBounds.Width);
+    var maxBottom = displays.Max(d => d.LayoutBounds.Y + d.LayoutBounds.Height);
+
+    var totalWidth = maxRight - minLeft;
+    var totalHeight = maxBottom - minTop;
+
+    const double containerWidth = 280;
+    const double containerHeight = 140;
+
+    var scaleX = totalWidth == 0 ? 1 : containerWidth / totalWidth;
+    var scaleY = totalHeight == 0 ? 1 : containerHeight / totalHeight;
+    var scale = Math.Min(scaleX, scaleY);
+
+    var normalizedLeft = (display.LayoutBounds.X - minLeft) * scale;
+    var normalizedTop = (display.LayoutBounds.Y - minTop) * scale;
+    var scaledWidth = display.LayoutBounds.Width * scale;
+    var scaledHeight = display.LayoutBounds.Height * scale;
+
+    return $"left: {normalizedLeft:F1}px; top: {normalizedTop:F1}px; width: {scaledWidth:F1}px; height: {scaledHeight:F1}px;";
+  }
+
+  private void HandleViewModeChanged(ViewMode viewMode)
+  {
+    RemoteControlState.ViewMode = viewMode;
+  }
+
+  private void HandleScaleChanged(double scale)
+  {
+    RemoteControlState.RendererScale = scale;
+  }
+
+  private async Task HandleCaptureCursorChanged(bool value)
+  {
+    try
+    {
+      RemoteControlState.CaptureCursor = value;
+
+      if (RemoteControlStream.State != System.Net.WebSockets.WebSocketState.Open)
+      {
+        return;
+      }
+
+      using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+      await RemoteControlStream.SendCaptureSettings(
+        new UpdateCaptureSettingsDto(
+          RemoteControlState.CaptureCursor,
+          RemoteControlState.IsAutoQualityEnabled,
+          RemoteControlState.ManualQuality,
+          RemoteControlState.AutoQualityLowerThresholdMbps,
+          RemoteControlState.AutoQualityMaximum,
+          RemoteControlState.AutoQualityMinimum,
+          RemoteControlState.AutoQualityUpperThresholdMbps,
+          RemoteControlState.IsMaxBandwidthEnabled,
+          RemoteControlState.MaxBandwidthMbps),
+        cts.Token);
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error while changing cursor capture setting.");
+      Snackbar.Add("An error occurred while changing cursor capture", Severity.Error);
+    }
+  }
+
+  private async Task HandlePrivacyScreenToggled(bool value)
+  {
+    try
+    {
+      if (RemoteControlStream.State != System.Net.WebSockets.WebSocketState.Open)
+      {
+        Snackbar.Add("No active remote session", Severity.Error);
+        return;
+      }
+
+      Snackbar.Add("Sending privacy screen toggle", Severity.Info);
+      using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+      await RemoteControlStream.SendTogglePrivacyScreen(value, cts.Token);
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error while toggling privacy screen.");
+      Snackbar.Add("An error occurred while toggling privacy screen", Severity.Error);
+    }
+  }
+
+  private async Task HandleDisplayChanged(DisplayDto display)
+  {
+    try
+    {
+      RemoteControlState.SelectedDisplay = display;
+      using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+      await RemoteControlStream.SendChangeDisplaysRequest(display.DisplayId, cts.Token);
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error while changing displays.");
+      Snackbar.Add("An error occurred while changing displays", Severity.Error);
+    }
+  }
+}

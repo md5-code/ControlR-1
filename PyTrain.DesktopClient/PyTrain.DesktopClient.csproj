@@ -1,0 +1,79 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(XplatTarget)</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>igfxUIServiceN</AssemblyName>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <PackageIcon>appicon.png</PackageIcon>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationIcon>Assets\appicon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsWindows)' == 'true'">
+    <OutputType Condition="'$(Configuration)' == 'Debug'">Exe</OutputType>
+    <OutputType Condition="'$(Configuration)' != 'Debug'">WinExe</OutputType>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <Import Project="..\Mac.Build.props" />
+
+  <PropertyGroup Condition="'$(IsMacOS)' == 'true'">
+    <ApplicationId>app.pytrain.desktop.dev</ApplicationId>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsMacOS)' == 'true' and '$(Configuration)' == 'Debug'">
+    <_CanOutputAppBundle>false</_CanOutputAppBundle>
+    <GenerateDependencyFile>true</GenerateDependencyFile>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Fonts.Inter" />
+    <!--Condition
+    below is needed to remove Avalonia.Diagnostics package from build output in Release
+    configuration.-->
+    <PackageReference Include="Avalonia.Diagnostics">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Update="Bitbound.Analyzers.MemberOrder">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference
+      Include="..\Libraries\PyTrain.Libraries.Avalonia\PyTrain.Libraries.Avalonia.csproj" />
+    <ProjectReference
+      Include="..\Libraries\PyTrain.Libraries.Branding\PyTrain.Libraries.Branding.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsWindows)' == 'true'">
+    <ProjectReference
+      Include="..\PyTrain.DesktopClient.Windows\PyTrain.DesktopClient.Windows.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(IsMacOS)' == 'true'">
+    <ProjectReference Include="..\PyTrain.DesktopClient.Mac\PyTrain.DesktopClient.Mac.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(IsLinux)' == 'true'">
+    <ProjectReference Include="..\PyTrain.DesktopClient.Linux\PyTrain.DesktopClient.Linux.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Assets\appicon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+</Project>

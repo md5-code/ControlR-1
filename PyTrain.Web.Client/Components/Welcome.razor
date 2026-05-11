@@ -1,0 +1,52 @@
+@inject IPyTrainApi ServerSettingsApi
+
+<div class="welcome-container">
+  <div class="welcome-card">
+    <div class="icon-wrapper">
+      <img src="/appicon-transparent.png" alt="PyTrain Icon" class="app-icon" />
+      <div class="icon-glow"></div>
+    </div>
+
+    <MudText Typo="Typo.h4" Class="mt-4">
+      Welcome to
+    </MudText>
+
+    <MudText Typo="Typo.h2" Class="welcome-title mb-4">
+      PyTrain
+    </MudText>
+
+    <MudText Typo="Typo.body1" Class="welcome-subtitle mb-6">
+      Remote control and device access
+    </MudText>
+
+    <div class="action-buttons">
+      <MudButton Color="Color.Primary" Size="Size.Large" Href="/Account/Login" Variant="Variant.Outlined"
+        Class="action-button">
+        <MudIcon Icon="@Icons.Material.Filled.Login" Class="me-2" />
+        Login
+      </MudButton>
+
+      @if (_isPublicRegistrationEnabled)
+      {
+        <MudButton Color="Color.Secondary" Size="Size.Large" Href="/Account/Register" Variant="Variant.Outlined"
+          Class="action-button">
+          <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Class="me-2" />
+          Register
+        </MudButton>
+      }
+    </div>
+  </div>
+</div>
+
+@code {
+  private bool _isPublicRegistrationEnabled;
+
+  protected override async Task OnInitializedAsync()
+  {
+    var settingsResults = await ServerSettingsApi.PublicRegistrationSettings.GetPublicRegistrationSettings();
+    if (settingsResults.IsSuccess)
+    {
+      _isPublicRegistrationEnabled = settingsResults.Value.IsPublicRegistrationEnabled;
+    }
+  }
+}

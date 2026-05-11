@@ -77,16 +77,16 @@ jobs:
         run: |
           TEST_PATHS=(
             "./server-publish/wwwroot/downloads/Version.txt"
-            "./server-publish/wwwroot/downloads/win-x86/ControlR.Agent.Installer.exe"
-            "./server-publish/wwwroot/downloads/win-x64/ControlR.Agent.Installer.exe"
-            "./server-publish/wwwroot/downloads/win-x86/ControlR.Agent.bundle.zip"
-            "./server-publish/wwwroot/downloads/win-x64/ControlR.Agent.bundle.zip"
-            "./server-publish/wwwroot/downloads/linux-x64/ControlR.Agent.Installer"
-            "./server-publish/wwwroot/downloads/linux-x64/ControlR.Agent.bundle.zip"
-            "./server-publish/wwwroot/downloads/osx-arm64/ControlR.Agent.Installer"
-            "./server-publish/wwwroot/downloads/osx-arm64/ControlR.Agent.bundle.zip"
-            "./server-publish/wwwroot/downloads/osx-x64/ControlR.Agent.Installer"
-            "./server-publish/wwwroot/downloads/osx-x64/ControlR.Agent.bundle.zip"
+            "./server-publish/wwwroot/downloads/win-x86/PyTrain.Agent.Installer.exe"
+            "./server-publish/wwwroot/downloads/win-x64/PyTrain.Agent.Installer.exe"
+            "./server-publish/wwwroot/downloads/win-x86/PyTrain.Agent.bundle.zip"
+            "./server-publish/wwwroot/downloads/win-x64/PyTrain.Agent.bundle.zip"
+            "./server-publish/wwwroot/downloads/linux-x64/PyTrain.Agent.Installer"
+            "./server-publish/wwwroot/downloads/linux-x64/PyTrain.Agent.bundle.zip"
+            "./server-publish/wwwroot/downloads/osx-arm64/PyTrain.Agent.Installer"
+            "./server-publish/wwwroot/downloads/osx-arm64/PyTrain.Agent.bundle.zip"
+            "./server-publish/wwwroot/downloads/osx-x64/PyTrain.Agent.Installer"
+            "./server-publish/wwwroot/downloads/osx-x64/PyTrain.Agent.bundle.zip"
             "./server-publish/novnc/vnc.html"
           )
 
@@ -114,7 +114,7 @@ jobs:
 
           COPY . /app
 
-          ENTRYPOINT ["dotnet", "ControlR.Web.Server.dll"]
+          ENTRYPOINT ["dotnet", "PyTrain.Web.Server.dll"]
 
           HEALTHCHECK \
             CMD curl -f http://localhost:8080/health || exit 1
@@ -135,7 +135,7 @@ jobs:
           # Delete the existing image manifest from Docker Hub
           # This removes the "dev" tag so we can push the new one fresh
           curl -s -X DELETE \
-            "https://hub.docker.com/v2/repositories/bitbound/controlr/tags/dev/" \
+            "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_NAMESPACE }}/pytrain/tags/dev/" \
             -u "${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_PAT }}"
           echo "Deleted existing dev tag (if it existed)"
 
@@ -146,8 +146,8 @@ jobs:
           file: ./server-publish/Dockerfile
           push: true
           tags: |
-            bitbound/controlr:${{ inputs.docker_tag }}
-            bitbound/controlr:${{ steps.get-version.outputs.VERSION }}
+            ${{ vars.DOCKER_NAMESPACE }}/pytrain:${{ inputs.docker_tag }}
+            ${{ vars.DOCKER_NAMESPACE }}/pytrain:${{ steps.get-version.outputs.VERSION }}
           build-args: |
             CURRENT_VERSION=${{ steps.get-version.outputs.VERSION }}
 
@@ -156,5 +156,5 @@ jobs:
           echo "## Publish Summary" >> $GITHUB_STEP_SUMMARY
           echo "**Version:** ${{ steps.get-version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
           echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
-          echo "- bitbound/controlr:${{ inputs.docker_tag }}" >> $GITHUB_STEP_SUMMARY
-          echo "- bitbound/controlr:${{ steps.get-version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ${{ vars.DOCKER_NAMESPACE }}/pytrain:${{ inputs.docker_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ${{ vars.DOCKER_NAMESPACE }}/pytrain:${{ steps.get-version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY

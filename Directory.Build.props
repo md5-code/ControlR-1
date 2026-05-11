@@ -6,12 +6,10 @@
       false
     </NuGetAudit>
 
-    <Authors>Jared Goodwin</Authors>
-    <Copyright>©️ $([System.DateTime]::Now.Year) Bitbound</Copyright>
-    <RepositoryUrl>https://github.com/bitbound/controlr.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/bitbound/controlr</PackageProjectUrl>
-    <Company>Bitbound</Company>
-    <Description>Open-source remote control and remote access.</Description>
+    <Authors>md5-hash</Authors>
+    <Copyright>©️ $([System.DateTime]::Now.Year) md5-hash</Copyright>
+    <Company>md5-hash</Company>
+    <Description>Private internal remote management tool developed by md5-hash.</Description>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

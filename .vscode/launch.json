@@ -5,9 +5,9 @@
       "name": "Agent (Debug)",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/ControlR.Agent/bin/Debug/net10.0/ControlR.Agent.dll",
+      "program": "${workspaceFolder}/PyTrain.Agent/bin/Debug/net10.0/PyTrain.Agent.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/ControlR.Agent",
+      "cwd": "${workspaceFolder}/PyTrain.Agent",
       "launchSettingsProfile": "Run",
       "stopAtEntry": false,
       "console": "internalConsole"
@@ -20,7 +20,7 @@
       "args": [
         "run",
         "--project",
-        "${workspaceFolder}/ControlR.DesktopClient/ControlR.DesktopClient.csproj",
+        "${workspaceFolder}/PyTrain.DesktopClient/PyTrain.DesktopClient.csproj",
         "--launch-profile",
         "Run"
       ],
@@ -28,7 +28,7 @@
         "args": [
           "run",
           "--project",
-          "${workspaceFolder}/ControlR.DesktopClient/ControlR.DesktopClient.csproj",
+          "${workspaceFolder}/PyTrain.DesktopClient/PyTrain.DesktopClient.csproj",
           "--framework",
           "net10.0-windows8.0",
           "--runtime",
@@ -41,7 +41,7 @@
         "args": [
           "run",
           "--project",
-          "${workspaceFolder}/ControlR.DesktopClient/ControlR.DesktopClient.csproj",
+          "${workspaceFolder}/PyTrain.DesktopClient/PyTrain.DesktopClient.csproj",
           "--framework",
           "net10.0-macos",
           "--runtime",
@@ -50,7 +50,7 @@
           "Run"
         ]
       },
-      "cwd": "${workspaceFolder}/ControlR.DesktopClient",
+      "cwd": "${workspaceFolder}/PyTrain.DesktopClient",
       "stopAtEntry": false,
       "console": "internalConsole"
     },
@@ -58,14 +58,14 @@
       "name": "DesktopClient (Debug)",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/ControlR.DesktopClient/bin/Debug/net10.0/ControlR.DesktopClient.dll",
+      "program": "${workspaceFolder}/PyTrain.DesktopClient/bin/Debug/net10.0/PyTrain.DesktopClient.dll",
       "args": [],
       "osx": {
         "preLaunchTask": "build desktopclient mac",
         "program": "dotnet",
         "args": [
           "exec",
-          "${workspaceFolder}/ControlR.DesktopClient/bin/Debug/net10.0-macos/osx-arm64/ControlR.DesktopClient.dll",
+          "${workspaceFolder}/PyTrain.DesktopClient/bin/Debug/net10.0-macos/osx-arm64/PyTrain.DesktopClient.dll",
           "--instance-id",
           "localhost"
         ],
@@ -76,12 +76,12 @@
         }
       },
       "linux": {
-        "program": "${workspaceFolder}/ControlR.DesktopClient/bin/Debug/net10.0/ControlR.DesktopClient.dll",
+        "program": "${workspaceFolder}/PyTrain.DesktopClient/bin/Debug/net10.0/PyTrain.DesktopClient.dll",
       },
       "windows": {
-        "program": "${workspaceFolder}/ControlR.DesktopClient/bin/Debug/net10.0-windows8.0/ControlR.DesktopClient.dll"
+        "program": "${workspaceFolder}/PyTrain.DesktopClient/bin/Debug/net10.0-windows8.0/PyTrain.DesktopClient.dll"
       },
-      "cwd": "${workspaceFolder}/ControlR.DesktopClient",
+      "cwd": "${workspaceFolder}/PyTrain.DesktopClient",
       "launchSettingsProfile": "Run",
       "stopAtEntry": false,
       "console": "internalConsole"
@@ -90,9 +90,9 @@
       "name": "Server (Debug)",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/ControlR.Web.Server/bin/Debug/net10.0/ControlR.Web.Server.dll",
+      "program": "${workspaceFolder}/PyTrain.Web.Server/bin/Debug/net10.0/PyTrain.Web.Server.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/ControlR.Web.Server",
+      "cwd": "${workspaceFolder}/PyTrain.Web.Server",
       "launchSettingsProfile": "https",
       "stopAtEntry": false,
       "console": "internalConsole"
@@ -106,11 +106,11 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/ControlR.Agent/ControlR.Agent.csproj",
+        "${workspaceFolder}/PyTrain.Agent/PyTrain.Agent.csproj",
         "--launch-profile",
         "Run"
       ],
-      "cwd": "${workspaceFolder}/ControlR.Agent",
+      "cwd": "${workspaceFolder}/PyTrain.Agent",
       "stopAtEntry": false,
       "console": "internalConsole",
       "linux": {
@@ -121,9 +121,9 @@
       "name": "ViewerExample (Debug)",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/Examples/ControlR.AvaloniaViewerExample/bin/Debug/net10.0/ControlR.AvaloniaViewerExample.dll",
+      "program": "${workspaceFolder}/Examples/PyTrain.AvaloniaViewerExample/bin/Debug/net10.0/PyTrain.AvaloniaViewerExample.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/Examples/ControlR.AvaloniaViewerExample",
+      "cwd": "${workspaceFolder}/Examples/PyTrain.AvaloniaViewerExample",
       "launchSettingsProfile": "Run",
       "stopAtEntry": false,
       "console": "internalConsole"
@@ -137,7 +137,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/ControlR.DesktopClient/ControlR.DesktopClient.csproj",
+        "${workspaceFolder}/PyTrain.DesktopClient/PyTrain.DesktopClient.csproj",
         "--launch-profile",
         "Run"
       ],
@@ -146,7 +146,7 @@
           "watch",
           "run",
           "--project",
-          "${workspaceFolder}/ControlR.DesktopClient/ControlR.DesktopClient.csproj",
+          "${workspaceFolder}/PyTrain.DesktopClient/PyTrain.DesktopClient.csproj",
           "--framework",
           "net10.0-windows8.0",
           "--runtime",
@@ -160,7 +160,7 @@
           "watch",
           "run",
           "--project",
-          "${workspaceFolder}/ControlR.DesktopClient/ControlR.DesktopClient.csproj",
+          "${workspaceFolder}/PyTrain.DesktopClient/PyTrain.DesktopClient.csproj",
           "--framework",
           "net10.0-macos",
           "--runtime",
@@ -178,7 +178,7 @@
           "watch",
           "run",
           "--project",
-          "${workspaceFolder}/ControlR.DesktopClient/ControlR.DesktopClient.csproj",
+          "${workspaceFolder}/PyTrain.DesktopClient/PyTrain.DesktopClient.csproj",
           "--framework",
           "net10.0",
           "--runtime",
@@ -187,7 +187,7 @@
           "Run"
         ]
       },
-      "cwd": "${workspaceFolder}/ControlR.DesktopClient",
+      "cwd": "${workspaceFolder}/PyTrain.DesktopClient",
       "stopAtEntry": false,
       "console": "internalConsole",
       "env": {
@@ -205,11 +205,11 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/ControlR.Web.Server/ControlR.Web.Server.csproj",
+        "${workspaceFolder}/PyTrain.Web.Server/PyTrain.Web.Server.csproj",
         "--launch-profile",
         "https"
       ],
-      "cwd": "${workspaceFolder}/ControlR.Web.Server",
+      "cwd": "${workspaceFolder}/PyTrain.Web.Server",
       "stopAtEntry": false,
       "serverReadyAction": {
         "action": "openExternally",
@@ -232,16 +232,16 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "hosted": true,
-      "program": "${workspaceFolder}/ControlR.Web.Server/bin/Debug/net10.0/ControlR.Web.Server.dll",
-      "cwd": "${workspaceFolder}/ControlR.Web.Server",
+      "program": "${workspaceFolder}/PyTrain.Web.Server/bin/Debug/net10.0/PyTrain.Web.Server.dll",
+      "cwd": "${workspaceFolder}/PyTrain.Web.Server",
     },
     {
       "name": "LoadTester",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/Tests/ControlR.Agent.LoadTester/bin/Debug/net10.0/ControlR.Agent.LoadTester.dll",
+      "program": "${workspaceFolder}/Tests/PyTrain.Agent.LoadTester/bin/Debug/net10.0/PyTrain.Agent.LoadTester.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/Tests/ControlR.Agent.LoadTester",
+      "cwd": "${workspaceFolder}/Tests/PyTrain.Agent.LoadTester",
       "stopAtEntry": false,
       "console": "internalConsole"
     },
@@ -249,9 +249,9 @@
       "name": "DesktopClient (GST Debug)",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/ControlR.DesktopClient/bin/Debug/net10.0/ControlR.DesktopClient.dll",
+      "program": "${workspaceFolder}/PyTrain.DesktopClient/bin/Debug/net10.0/PyTrain.DesktopClient.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/ControlR.DesktopClient",
+      "cwd": "${workspaceFolder}/PyTrain.DesktopClient",
       "launchSettingsProfile": "Run",
       "stopAtEntry": false,
       "console": "internalConsole",

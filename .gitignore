@@ -362,16 +362,16 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# ControlR-specific negations
-!ControlR.ApiClient/Output/**
-!ControlR.Agent/Properties/PublishProfiles/**
+# PyTrain-specific negations
+!PyTrain.ApiClient/Output/**
+!PyTrain.Agent/Properties/PublishProfiles/**
 
-# ControlR-specific ignores
+# PyTrain-specific ignores
 .plans/*
 .kilo/*
-/ControlR.Web.Server/wwwroot/downloads/**
-/ControlR.Web.Server/appsettings.Development.json
+/PyTrain.Web.Server/wwwroot/downloads/**
+/PyTrain.Web.Server/appsettings.Development.json
 .DS_Store
-.idea/.idea.ControlR/.idea/copilot.data.migration.agent.xml
-.idea/.idea.ControlR/.idea/copilot.data.migration.edit.xml
-/Tests/ControlR.DesktopClient.Common.Tests/Resources/*
+.idea/.idea.PyTrain/.idea/copilot.data.migration.agent.xml
+.idea/.idea.PyTrain/.idea/copilot.data.migration.edit.xml
+/Tests/PyTrain.DesktopClient.Common.Tests/Resources/*

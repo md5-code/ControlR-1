@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+						 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+						 xmlns:vm="using:PyTrain.DesktopClient.ViewModels"
+						 xmlns:common="using:PyTrain.DesktopClient.Common"
+						 xmlns:controls="using:PyTrain.Libraries.Avalonia.Controls"
+						 xmlns:theme="using:PyTrain.DesktopClient.Theme"
+						 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+						 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+						 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+						 x:Class="PyTrain.DesktopClient.Views.AboutView"
+						 x:DataType="vm:IAboutViewModel">
+
+	<ScrollViewer>
+		<StackPanel Spacing="16">
+
+			<TextBlock Text="{x:Static common:Localization.About}" Classes="h1 Primary" />
+
+			<Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="16" RowSpacing="12">
+
+				<TextBlock Grid.Row="0" Grid.Column="0" FontWeight="SemiBold">
+					<Run Text="{x:Static common:Localization.Version}" />
+					<Run Text=":" />
+				</TextBlock>
+				<TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding AppVersion}" />
+
+				<TextBlock Grid.Row="1" Grid.Column="0" FontWeight="SemiBold">
+					<Run Text="{x:Static common:Localization.InstanceId}" />
+					<Run Text=":" />
+				</TextBlock>
+				<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding InstanceId}" />
+
+				<TextBlock Grid.Row="2" Grid.Column="0" FontWeight="SemiBold" Text="Build:" />
+				<TextBlock Grid.Row="2" Grid.Column="1" Text="Private internal build — md5-hash" />
+
+				<TextBlock Grid.Row="3" Grid.Column="0" FontWeight="SemiBold">
+					<Run Text="{x:Static common:Localization.AboutLicenseLabel}" />
+					<Run Text=":" />
+				</TextBlock>
+				<TextBlock Grid.Row="3" Grid.Column="1" Text="MIT License (see LICENSE.txt)" />
+			</Grid>
+
+			<Rectangle Height="1" Fill="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" />
+
+			<TextBlock FontWeight="SemiBold">
+				<Run Text="{x:Static common:Localization.AboutThirdPartyLicensesLabel}" />
+				<Run Text=":" />
+			</TextBlock>
+			<TextBlock Text="{x:Static common:Localization.AboutThirdPartyLicensesDescription}" TextWrapping="Wrap" />
+
+			<Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="16" RowSpacing="8">
+
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="{x:Static common:Localization.AboutLibraryAvaloniaUi}" VerticalAlignment="Center" />
+				<StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+					<HyperlinkButton Content="{x:Static common:Localization.AboutSourceText}"
+											 Command="{Binding OpenUrlCommand}"
+											 CommandParameter="https://github.com/AvaloniaUI/Avalonia" />
+					<HyperlinkButton Content="{x:Static common:Localization.LinkLicenseText}"
+											 Command="{Binding OpenUrlCommand}"
+											 CommandParameter="https://github.com/AvaloniaUI/Avalonia/blob/master/licence.md" />
+				</StackPanel>
+
+				<TextBlock Grid.Row="1" Grid.Column="0" Text="{x:Static common:Localization.AboutLibrarySerilog}" VerticalAlignment="Center" />
+				<StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+					<HyperlinkButton Content="{x:Static common:Localization.AboutSourceText}"
+											 Command="{Binding OpenUrlCommand}"
+											 CommandParameter="https://github.com/serilog/serilog" />
+					<HyperlinkButton Content="{x:Static common:Localization.LinkLicenseText}"
+											 Command="{Binding OpenUrlCommand}"
+											 CommandParameter="https://github.com/serilog/serilog/blob/dev/LICENSE" />
+				</StackPanel>
+
+				<TextBlock Grid.Row="2" Grid.Column="0" Text="{x:Static common:Localization.AboutLibraryTmdsDbus}" VerticalAlignment="Center" />
+				<StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+					<HyperlinkButton Content="{x:Static common:Localization.AboutSourceText}"
+											 Command="{Binding OpenUrlCommand}"
+											 CommandParameter="https://github.com/tmds/Tmds.DBus" />
+					<HyperlinkButton Content="{x:Static common:Localization.LinkLicenseText}"
+											 Command="{Binding OpenUrlCommand}"
+											 CommandParameter="https://github.com/tmds/Tmds.DBus/blob/main/COPYING" />
+				</StackPanel>
+
+				<TextBlock Grid.Row="3" Grid.Column="0" Text="{x:Static common:Localization.AboutLibraryMicrosoftLibraries}" VerticalAlignment="Center" />
+				<HyperlinkButton Grid.Row="3" Grid.Column="1"
+												 Content="{x:Static common:Localization.AboutSourceText}"
+												 Command="{Binding OpenUrlCommand}"
+												 CommandParameter="https://github.com/microsoft"
+												 VerticalAlignment="Center" />
+
+			</Grid>
+		</StackPanel>
+	</ScrollViewer>
+</UserControl>

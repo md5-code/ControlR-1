@@ -2,19 +2,19 @@
 applyTo: '**'
 ---
 
-# ControlR
+# PyTrain
 
 Cross-platform remote access and control. .NET 10 backend (ASP.NET Core), Blazor WebAssembly frontend, Avalonia desktop apps.
 
 ## Build & Run
 
-- Build: `dotnet build ControlR.slnx --verbosity quiet` (no output = success)
+- Build: `dotnet build PyTrain.slnx --verbosity quiet` (no output = success)
 - Run: Use IDE launch profiles — "Full Stack" in VS/Rider; "Full Stack (Debug)" or "Full Stack (Hot Reload)" in VS Code.
 - Don't attempt to fix warning `BB0001: Member '{member_name}' is not in the correct order`.
 
 ## Context Scope
 
-- Exclude `ControlR.Web.Server/novnc/` and any `node_modules/` directories from context.
+- Exclude `PyTrain.Web.Server/novnc/` and any `node_modules/` directories from context.
 
 ## Service Registration Locations
 
@@ -22,10 +22,10 @@ Services use extension methods, not direct `Program.cs` registrations:
 
 | Project | Method | File |
 |---|---|---|
-| ControlR.Agent | `AddControlRAgent` | `ControlR.Agent.Common\Startup\HostBuilderExtensions.cs` |
-| ControlR.Web.Server | `AddControlrServer` | `ControlR.Web.Server\Startup\WebApplicationBuilderExtensions.cs` |
-| ControlR.Web.Client | `AddControlrWebClient` | `ControlR.Web.Client\Startup\IServiceCollectionExtensions.cs` |
-| ControlR.DesktopClient | `AddControlrDesktop` | `ControlR.DesktopClient\StaticServiceProvider.cs` |
+| PyTrain.Agent | `AddPyTrainAgent` | `PyTrain.Agent.Common\Startup\HostBuilderExtensions.cs` |
+| PyTrain.Web.Server | `AddPyTrainServer` | `PyTrain.Web.Server\Startup\WebApplicationBuilderExtensions.cs` |
+| PyTrain.Web.Client | `AddPyTrainWebClient` | `PyTrain.Web.Client\Startup\IServiceCollectionExtensions.cs` |
+| PyTrain.DesktopClient | `AddPyTrainDesktop` | `PyTrain.DesktopClient\StaticServiceProvider.cs` |
 
 ## Communication Architecture
 
@@ -36,7 +36,7 @@ Services use extension methods, not direct `Program.cs` registrations:
 
 ## DTO Locations
 
-DTOs go under `\Libraries\ControlR.Libraries.Api.Contracts\Dtos\`:
+DTOs go under `\Libraries\PyTrain.Libraries.Api.Contracts\Dtos\`:
 - `HubDtos/` — SignalR hub payloads
 - `IpcDtos/` — Agent ↔ DesktopClient IPC
 - `ServerApi/` — REST API
@@ -44,8 +44,8 @@ DTOs go under `\Libraries\ControlR.Libraries.Api.Contracts\Dtos\`:
 
 ## Cross-Platform
 
-- Platform implementations in `ControlR.Agent.Common` under `Services.Windows/`, `Services.Linux/`, `Services.Mac/`.
-- Desktop client isolates native code in `ControlR.DesktopClient.Windows/`, `.Linux/`, `.Mac/` with shared code in `ControlR.DesktopClient.Common`.
+- Platform implementations in `PyTrain.Agent.Common` under `Services.Windows/`, `Services.Linux/`, `Services.Mac/`.
+- Desktop client isolates native code in `PyTrain.DesktopClient.Windows/`, `.Linux/`, `.Mac/` with shared code in `PyTrain.DesktopClient.Common`.
 - Conditional compilation symbols: `IS_WINDOWS`, `IS_MACOS`, `IS_LINUX`, `IS_UNIX` (defined in `Directory.Build.props`).
 - Use `[SupportedOSPlatform]` for platform-specific code.
 - Platform detection via `ISystemEnvironment.Platform` and `RuntimeInformation`.
@@ -58,7 +58,7 @@ DTOs go under `\Libraries\ControlR.Libraries.Api.Contracts\Dtos\`:
 - No TODOs, placeholder code, or "in production you should..." comments. Every implementation must be complete.
 - No "Async" suffix on async methods unless distinguishing from a sync overload.
 - When an interface has only one implementation, place the interface in the same file as the implementation rather than a separate file.
-- Don't create extra public classes in files containing other classes. Use `Result<T>` from `ControlR.Libraries.Shared.Primitives` for result types.
+- Don't create extra public classes in files containing other classes. Use `Result<T>` from `PyTrain.Libraries.Shared.Primitives` for result types.
 - Reduce indentation by returning/continuing early and inverting conditions when appropriate.
 
 ## Web UI
@@ -71,14 +71,14 @@ DTOs go under `\Libraries\ControlR.Libraries.Api.Contracts\Dtos\`:
 ## Desktop UI
 
 - Avalonia UI with MVVM pattern.
-- All UI text bound via `x:Static common:Localization.KeyName`. Add keys to JSON files under `/ControlR.DesktopClient.Common/Resources/Strings/`.
+- All UI text bound via `x:Static common:Localization.KeyName`. Add keys to JSON files under `/PyTrain.DesktopClient.Common/Resources/Strings/`.
 - Icons: https://avaloniaui.github.io/icons.html — add to `Icons.axaml` resource dictionary as needed.
 - `IMessenger` for cross-component communication.
 
 ## Testing
 
 - xUnit v3. Run tests with `dotnet run`, not `dotnet test`.
-- Server test helpers in `Tests\ControlR.Web.Server.Tests\Helpers\`.
+- Server test helpers in `Tests\PyTrain.Web.Server.Tests\Helpers\`.
 
 ## Package Management
 

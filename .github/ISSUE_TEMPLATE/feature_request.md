@@ -3,7 +3,6 @@ name: Feature request
 about: Suggest an idea for this project
 title: "[FEATURE] - Title Here"
 labels: enhancement
-assignees: bitbound
 
 ---
 

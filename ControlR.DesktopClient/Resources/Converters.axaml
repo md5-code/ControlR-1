@@ -1,5 +1,0 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui"
-										xmlns:converters="using:ControlR.DesktopClient.Converters"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-	<converters:ResourceKeyToGeometryConverter x:Key="ResourceKeyToGeometryConverter" />
-</ResourceDictionary>

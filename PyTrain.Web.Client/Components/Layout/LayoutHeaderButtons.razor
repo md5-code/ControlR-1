@@ -1,0 +1,14 @@
+@using PyTrain.Libraries.Api.Contracts.Enums
+@using PyTrain.Libraries.Api.Contracts.Hubs
+@using PyTrain.Web.Client.Components.Layout
+
+@if (RendererInfo.IsInteractive)
+{
+    <ConnectionIndicator THub="@IViewerHub" />
+}
+
+<ThemeToggle OnThemeChanged="OnThemeChanged" />
+
+@code {
+    [Parameter] public EventCallback<ThemeMode> OnThemeChanged { get; set; }
+}

@@ -71,7 +71,7 @@ jobs:
       - name: Copy OpenAPI Spec
         shell: bash
         run: |
-          cp ./server-publish/ControlR.Web.Server.json ./ControlR.Web.Server.json
+          cp ./server-publish/PyTrain.Web.Server.json ./PyTrain.Web.Server.json
 
       - name: Prepare Release Artifacts
         shell: bash
@@ -99,7 +99,7 @@ jobs:
               - 
           files: |
             server-linux-amd64.zip
-            ControlR.Web.Server.json
+            PyTrain.Web.Server.json
             docker-compose.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

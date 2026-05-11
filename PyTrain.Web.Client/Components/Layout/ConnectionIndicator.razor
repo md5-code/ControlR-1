@@ -1,0 +1,72 @@
+@using PyTrain.Web.Client.Models.Messages
+@typeparam THub where THub : class
+@inject IHubConnection<THub> HubConnection
+@inject IMessenger Messenger
+@inject AuthenticationStateProvider AuthState
+
+@if (!RendererInfo.IsInteractive || !_isAuthenticated)
+{
+  <MudIcon Color="Color.Default" Icon="@(Icons.Material.Filled.OfflineBolt)" Class="mx-3 mt-1" Title="Disabled" />
+}
+else
+{
+  switch (_hubConnectionState)
+  {
+    case HubConnectionState.Connected:
+      if (OperatingSystem.IsBrowser())
+      {
+        <MudTooltip Text="Connected">
+          <MudIcon Color="Color.Success" Icon="@(Icons.Material.Filled.Bolt)" Class="mx-3 mt-1" />
+        </MudTooltip>
+      }
+      else
+      {
+        <MudTooltip Text="Connected (server-side rendered)">
+          <MudIcon Color="Color.Info" Icon="@(Icons.Material.Filled.Bolt)" Class="mx-3 mt-1" />
+        </MudTooltip>
+      }
+      break;
+    case HubConnectionState.Connecting or HubConnectionState.Reconnecting:
+      <MudTooltip Text="Reconnecting">
+        <MudProgressCircular Indeterminate StrokeWidth="6" Size="Size.Small" Color="Color.Warning" Class="mx-3 mt-1" />
+      </MudTooltip>
+      break;
+    case HubConnectionState.Disconnected:
+      <MudTooltip Text="Disconnected">
+        <MudIcon Color="Color.Error" Icon="@(Icons.Material.Filled.OfflineBolt)" Class="mx-3 mt-1" />
+      </MudTooltip>
+      break;
+  }
+}
+
+@code {
+  private HubConnectionState _hubConnectionState = HubConnectionState.Disconnected;
+  private bool _isAuthenticated;
+
+  protected override async Task OnInitializedAsync()
+  {
+    _isAuthenticated = await AuthState.IsAuthenticated();
+    _hubConnectionState = HubConnection.ConnectionState;
+    if (RendererInfo.IsInteractive)
+    {
+      Messenger.Register<HubConnectionStateChangedMessage>(this, HandleHubConnectionStateChanged);
+    }
+    await base.OnInitializedAsync();
+  }
+
+  protected override bool ShouldRender()
+  {
+    if (RendererInfo.IsInteractive)
+    {
+      _hubConnectionState = HubConnection.ConnectionState;
+    }
+
+    return base.ShouldRender();
+  }
+
+  private async Task HandleHubConnectionStateChanged(object subscriber, HubConnectionStateChangedMessage message)
+  {
+    _hubConnectionState = message.NewState;
+    await InvokeAsync(StateHasChanged);
+  }
+}

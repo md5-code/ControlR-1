@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFramework>$(MacTargetFramework)</TargetFramework>
+		<TargetPlatformVersion>$(MacTargetPlatformVersion)</TargetPlatformVersion>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\PyTrain.Libraries.Shared\PyTrain.Libraries.Shared.csproj" />
+    <ProjectReference Include="..\PyTrain.Libraries.NativeInterop.Unix\PyTrain.Libraries.NativeInterop.Unix.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Update="Bitbound.Analyzers.MemberOrder">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+</Project>

@@ -1,0 +1,8 @@
+namespace PyTrain.Libraries.Api.Contracts.Dtos.RemoteControlDtos;
+
+[MessagePackObject(keyAsPropertyName: true)]
+public record MouseClickDto(
+    int Button,
+    bool IsDoubleClick,
+    double NormalizedX,
+    double NormalizedY);

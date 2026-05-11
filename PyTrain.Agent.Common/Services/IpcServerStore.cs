@@ -1,0 +1,105 @@
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
+using PyTrain.Libraries.Ipc;
+using PyTrain.Libraries.Shared.Helpers;
+using PyTrain.Libraries.Shared.Services.Processes;
+
+namespace PyTrain.Agent.Common.Services;
+
+/// <summary>
+/// Stores IPC server connections to UI sessions.
+/// </summary>
+public interface IIpcServerStore
+{
+  ReadOnlyDictionary<int, IpcServerRecord> Servers { get; }
+
+  void AddServer(IProcess process, IIpcServer server);
+  bool ContainsServer(int processId);
+  Task KillAllServers(string reason);
+  bool TryGetServer(int processId, [NotNullWhen(true)] out IpcServerRecord? serverRecord);
+  bool TryRemove(int processId, [NotNullWhen(true)] out IpcServerRecord? serverRecord);
+}
+
+internal class IpcServerStore(ILogger<IpcServerStore> logger) : IIpcServerStore
+{
+  private readonly ConcurrentDictionary<int, IpcServerRecord> _ipcServers = [];
+  private readonly ILogger<IpcServerStore> _logger = logger;
+
+  public ReadOnlyDictionary<int, IpcServerRecord> Servers => new(_ipcServers);
+
+  public void AddServer(IProcess process, IIpcServer server)
+  {
+    void HandleProcessExited(object? sender, IProcess process)
+    {
+      if (_ipcServers.TryRemove(process.Id, out var removedRecord))
+      {
+        Disposer.DisposeAll(removedRecord.Process, removedRecord.Server);
+        return;
+      }
+
+      Disposer.DisposeAll(process, server);
+    }
+
+    // Ensure we receive exit notifications to promptly clean up.
+    process.EnableRaisingEvents = true;
+    process.Exited += HandleProcessExited;
+
+    var serverRecord = new IpcServerRecord(process, server);
+
+    // If the attested process is already gone, don't add a stale server record.
+    if (process.HasExited)
+    {
+      process.Exited -= HandleProcessExited;
+      Disposer.DisposeAll(process, server);
+      return;
+    }
+
+    _ipcServers.AddOrUpdate(
+      process.Id,
+      serverRecord,
+      (_, existing) =>
+      {
+        Disposer.DisposeAll(existing.Process, existing.Server);
+        return serverRecord;
+      }
+    );
+  }
+
+  public bool ContainsServer(int processId)
+  {
+    return _ipcServers.ContainsKey(processId);
+  }
+
+  public async Task KillAllServers(string reason)
+  {
+    foreach (var server in _ipcServers.Values)
+    {
+      try
+      {
+        var dto = new ShutdownCommandDto(reason);
+        await server.Server.Client.ShutdownDesktopClient(dto);
+      }
+      catch (Exception ex)
+      {
+        _logger.LogWarning(
+         ex,
+         "Failed to send shutdown command to IPC server for process {ProcessId}.",
+         server.Process.Id);
+      }
+      Disposer.DisposeAll(server.Process, server.Server);
+    }
+    _ipcServers.Clear();
+  }
+
+  public bool TryGetServer(int processId, [NotNullWhen(true)] out IpcServerRecord? serverRecord)
+  {
+    return _ipcServers.TryGetValue(processId, out serverRecord);
+  }
+
+  public bool TryRemove(int processId, [NotNullWhen(true)] out IpcServerRecord? serverRecord)
+  {
+    return _ipcServers.TryRemove(processId, out serverRecord);
+  }
+}
+public record IpcServerRecord(IProcess Process, IIpcServer Server);

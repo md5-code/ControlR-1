@@ -29,14 +29,14 @@ jobs:
         run: dotnet workload install macos
 
       - name: Restore Solution
-        run: dotnet restore ControlR.slnx
+        run: dotnet restore PyTrain.slnx
 
       - name: Build Solution
-        run: dotnet build ControlR.slnx -c Release --no-restore
+        run: dotnet build PyTrain.slnx -c Release --no-restore
 
       - name: Run UI Tests
         run: |
-          dotnet run --project Tests/ControlR.Web.Server.UITests/ControlR.Web.Server.UITests.csproj -c Release --no-build --no-restore
+          dotnet run --project Tests/PyTrain.Web.Server.UITests/PyTrain.Web.Server.UITests.csproj -c Release --no-build --no-restore
           if ($LASTEXITCODE -ne 0) {
             throw "UI test execution failed."
           }
@@ -46,5 +46,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ui-test-results
-          path: TestResults/ControlR.Web.Server.UITests/
+          path: TestResults/PyTrain.Web.Server.UITests/
           retention-days: 7
