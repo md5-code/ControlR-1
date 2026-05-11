@@ -22,7 +22,7 @@ public interface IUserCreator
     string emailAddress,
     ExternalLoginInfo externalLoginInfo,
     string? returnUrl);
-  
+
   // Overload to create a user within a tenant and optionally assign roles and tags.
   Task<CreateUserResult> CreateUser(
     string emailAddress,
@@ -30,6 +30,13 @@ public interface IUserCreator
     Guid tenantId,
     IEnumerable<Guid>? roleIds = null,
     IEnumerable<Guid>? tagIds = null);
+
+  // Creates a brand-new tenant with the provided name plus an admin user
+  // (TenantAdministrator + DeviceSuperUser + AgentInstaller + InstallerKeyManager).
+  Task<CreateUserResult> CreateTenantWithAdmin(
+    string tenantName,
+    string adminEmail,
+    string adminPassword);
 }
 
 public class UserCreator(
@@ -77,6 +84,17 @@ public class UserCreator(
       emailAddress,
       password: password,
       tenantId: tenantId);
+  }
+
+  public async Task<CreateUserResult> CreateTenantWithAdmin(
+    string tenantName,
+    string adminEmail,
+    string adminPassword)
+  {
+    return await CreateUserImpl(
+      adminEmail,
+      password: adminPassword,
+      tenantName: tenantName);
   }
 
   public async Task<CreateUserResult> CreateUser(
@@ -164,6 +182,7 @@ public class UserCreator(
     ExternalLoginInfo? externalLoginInfo = null,
     string? returnUrl = null,
     Guid? tenantId = null,
+    string? tenantName = null,
     CancellationToken cancellationToken = default)
   {
     try
@@ -177,7 +196,7 @@ public class UserCreator(
       }
       else
       {
-        var tenant = new Tenant();
+        var tenant = new Tenant { Name = tenantName };
         user.Tenant = tenant;
       }
 

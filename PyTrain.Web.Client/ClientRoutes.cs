@@ -23,5 +23,6 @@ public static class ClientRoutes
   public const string ServerSettings = "/server-settings";
   public const string ServerStats = "/server-stats";
   public const string Settings = "/settings";
+  public const string Tenants = "/tenants";
   public const string TenantSettings = "/tenant-settings";
 }

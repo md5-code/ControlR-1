@@ -9,6 +9,11 @@ public static class DeviceAccessQueryExtensions
     Guid tenantId,
     DeviceAccessScope accessScope)
   {
+    if (accessScope.Kind == DeviceAccessScopeKind.ServerAdminGlobal)
+    {
+      return query;
+    }
+
     query = query.Where(x => x.TenantId == tenantId);
 
     return accessScope.Kind switch

@@ -8,7 +8,7 @@ services:
       dockerfile: PyTrain.Web.Server/Dockerfile
     ports: !reset []
     environment:
-      PyTrain_AppOptions__EnablePublicRegistration: "true"
+      PyTrain_AppOptions__EnablePublicRegistration: "false"
       PyTrain_AppOptions__RequireUserEmailConfirmation: "false"
       PyTrain_AppOptions__DisableEmailSending: "true"
       PyTrain_AppOptions__EnableNetworkTrust: "true"

@@ -20,12 +20,14 @@ public static class DeviceAccessByDeviceResourcePolicy
           return Fail("Resource must be a device.", handlerCtx, authzHandler, logger);
         }
 
+        var isServerAdmin = handlerCtx.User.IsInRole(RoleNames.ServerAdministrator);
+
         if (!handlerCtx.User.TryGetTenantId(out var tenantId))
         {
           return Fail("Tenant ID claim is missing.", handlerCtx, authzHandler, logger);
         }
 
-        if (device.TenantId != tenantId)
+        if (!isServerAdmin && device.TenantId != tenantId)
         {
           return Fail("Device does not belong to this tenant.", handlerCtx, authzHandler, logger);
         }
@@ -37,6 +39,11 @@ public static class DeviceAccessByDeviceResourcePolicy
 
         var accessScopeResolver = sp.GetRequiredService<IDeviceAccessScopeResolver>();
         var accessScope = await accessScopeResolver.Resolve(handlerCtx.User, tenantId);
+
+        if (accessScope.Kind == DeviceAccessScopeKind.ServerAdminGlobal)
+        {
+          return true;
+        }
 
         if (accessScope.Kind == DeviceAccessScopeKind.SingleDevice)
         {

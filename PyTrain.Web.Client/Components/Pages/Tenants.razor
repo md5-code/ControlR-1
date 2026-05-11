@@ -1,0 +1,151 @@
+@attribute [Route(ClientRoutes.Tenants)]
+@attribute [Authorize(Roles = RoleNames.ServerAdministrator)]
+
+@inject IPyTrainApi PyTrainApi
+@inject ISnackbar Snackbar
+@inject ILogger<Tenants> Logger
+
+<PageTitle>Tenants</PageTitle>
+
+<PrimaryTitle>
+  Tenants
+  <MudIconButton Icon="@Icons.Material.Filled.Refresh"
+                 Color="Color.Info"
+                 Class="ms-2"
+                 OnClick="LoadTenants" />
+</PrimaryTitle>
+
+<MudPaper Class="pa-4 mt-4" Elevation="2">
+  <MudText Typo="Typo.h6" Color="Color.Primary" GutterBottom>Create Tenant</MudText>
+  <EditForm Model="_form" OnValidSubmit="HandleCreate">
+    <DataAnnotationsValidator />
+    <div class="d-flex flex-column gap-2" style="max-width: 480px;">
+      <MudTextField @bind-Value="_form.TenantName" Label="Tenant name" Required Variant="Variant.Outlined" />
+      <MudTextField @bind-Value="_form.AdminEmail" Label="Admin email" InputType="InputType.Email" Required Variant="Variant.Outlined" />
+      <MudTextField @bind-Value="_form.AdminPassword" Label="Admin password (8+ chars)" InputType="InputType.Password" Required Variant="Variant.Outlined" />
+      <MudButton ButtonType="ButtonType.Submit"
+                 Variant="Variant.Filled"
+                 Color="Color.Primary"
+                 Disabled="_isCreating"
+                 StartIcon="@Icons.Material.Filled.Add">
+        @(_isCreating ? "Creating..." : "Create Tenant")
+      </MudButton>
+    </div>
+  </EditForm>
+</MudPaper>
+
+<MudPaper Class="pa-4 mt-6" Elevation="2">
+  <MudText Typo="Typo.h6" Color="Color.Primary" GutterBottom>All Tenants</MudText>
+  @if (_tenants is null)
+  {
+    <MudProgressCircular Indeterminate />
+  }
+  else
+  {
+    <MudTable Items="_tenants" Hover Dense Striped Bordered>
+      <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Users</MudTh>
+        <MudTh>Devices</MudTh>
+        <MudTh>Created</MudTh>
+        <MudTh>Id</MudTh>
+      </HeaderContent>
+      <RowTemplate>
+        <MudTd DataLabel="Name">@(string.IsNullOrWhiteSpace(context.Name) ? "(unnamed)" : context.Name)</MudTd>
+        <MudTd DataLabel="Users">@context.UserCount</MudTd>
+        <MudTd DataLabel="Devices">@context.DeviceCount</MudTd>
+        <MudTd DataLabel="Created">@context.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</MudTd>
+        <MudTd DataLabel="Id"><code style="font-size: 0.75rem;">@context.Id</code></MudTd>
+      </RowTemplate>
+      <NoRecordsContent>
+        <MudText>No tenants yet.</MudText>
+      </NoRecordsContent>
+    </MudTable>
+  }
+</MudPaper>
+
+@code {
+  private List<TenantResponseDto>? _tenants;
+  private bool _isCreating;
+  private CreateTenantForm _form = new();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await base.OnInitializedAsync();
+    await LoadTenants();
+  }
+
+  private async Task LoadTenants()
+  {
+    try
+    {
+      var result = await PyTrainApi.Tenants.GetAllTenants();
+      if (result.IsSuccess)
+      {
+        _tenants = result.Value.ToList();
+        StateHasChanged();
+        return;
+      }
+      Logger.LogError("Failed to load tenants. Reason: {Reason}", result.Reason);
+      Snackbar.Add("Failed to load tenants", Severity.Error);
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error loading tenants.");
+      Snackbar.Add("Error loading tenants", Severity.Error);
+    }
+  }
+
+  private async Task HandleCreate()
+  {
+    if (_isCreating)
+    {
+      return;
+    }
+    _isCreating = true;
+    try
+    {
+      var request = new CreateTenantRequestDto(
+        _form.TenantName.Trim(),
+        _form.AdminEmail.Trim(),
+        _form.AdminPassword);
+
+      var result = await PyTrainApi.Tenants.CreateTenant(request);
+      if (result.IsSuccess)
+      {
+        Snackbar.Add($"Created tenant '{result.Value.Name}' with admin '{_form.AdminEmail}'", Severity.Success);
+        _form = new CreateTenantForm();
+        await LoadTenants();
+      }
+      else
+      {
+        Logger.LogWarning("Tenant creation failed. Reason: {Reason}", result.Reason);
+        Snackbar.Add($"Tenant creation failed: {result.Reason}", Severity.Error);
+      }
+    }
+    catch (Exception ex)
+    {
+      Logger.LogError(ex, "Error creating tenant.");
+      Snackbar.Add("Error creating tenant", Severity.Error);
+    }
+    finally
+    {
+      _isCreating = false;
+    }
+  }
+
+  private sealed class CreateTenantForm
+  {
+    [System.ComponentModel.DataAnnotations.Required]
+    [System.ComponentModel.DataAnnotations.StringLength(100, MinimumLength = 1)]
+    public string TenantName { get; set; } = string.Empty;
+
+    [System.ComponentModel.DataAnnotations.Required]
+    [System.ComponentModel.DataAnnotations.EmailAddress]
+    public string AdminEmail { get; set; } = string.Empty;
+
+    [System.ComponentModel.DataAnnotations.Required]
+    [System.ComponentModel.DataAnnotations.StringLength(128, MinimumLength = 8)]
+    public string AdminPassword { get; set; } = string.Empty;
+  }
+}

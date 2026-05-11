@@ -22,6 +22,11 @@ public class DeviceAccessScopeResolver(AppDb appDb) : IDeviceAccessScopeResolver
       return DeviceAccessScope.SingleDevice(deviceId);
     }
 
+    if (user.IsInRole(RoleNames.ServerAdministrator))
+    {
+      return DeviceAccessScope.ServerAdminGlobal();
+    }
+
     if (user.IsInRole(RoleNames.TenantAdministrator) ||
         user.IsInRole(RoleNames.DeviceSuperUser))
     {

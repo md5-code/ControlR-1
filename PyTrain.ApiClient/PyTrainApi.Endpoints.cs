@@ -121,6 +121,12 @@ public interface ITagsApi
   Task<ApiResult<TagResponseDto>> RenameTag(TagRenameRequestDto request, CancellationToken cancellationToken = default);
 }
 
+public interface ITenantsApi
+{
+  Task<ApiResult<TenantResponseDto[]>> GetAllTenants(CancellationToken cancellationToken = default);
+  Task<ApiResult<TenantResponseDto>> CreateTenant(CreateTenantRequestDto request, CancellationToken cancellationToken = default);
+}
+
 public interface ITenantSettingsApi
 {
   Task<ApiResult> DeleteTenantSetting(string settingName, CancellationToken cancellationToken = default);

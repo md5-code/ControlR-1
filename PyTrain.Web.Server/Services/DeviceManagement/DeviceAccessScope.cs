@@ -5,7 +5,8 @@ public enum DeviceAccessScopeKind
   None,
   TenantWide,
   SingleDevice,
-  TaggedDevices
+  TaggedDevices,
+  ServerAdminGlobal
 }
 
 public sealed record DeviceAccessScope
@@ -33,4 +34,6 @@ public sealed record DeviceAccessScope
     new(DeviceAccessScopeKind.TaggedDevices, null, tagIds);
 
   public static DeviceAccessScope TenantWide() => new(DeviceAccessScopeKind.TenantWide, null, []);
+
+  public static DeviceAccessScope ServerAdminGlobal() => new(DeviceAccessScopeKind.ServerAdminGlobal, null, []);
 }

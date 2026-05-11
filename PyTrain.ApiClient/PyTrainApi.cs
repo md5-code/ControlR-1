@@ -26,6 +26,7 @@ public interface IPyTrainApi
   IServerStatsApi ServerStats { get; }
   IServerVersionApi ServerVersion { get; }
   ITagsApi Tags { get; }
+  ITenantsApi Tenants { get; }
   ITenantSettingsApi TenantSettings { get; }
   ITestEmailApi TestEmail { get; }
   IUserPreferencesApi UserPreferences { get; }
@@ -57,6 +58,7 @@ public partial class PyTrainApi(
   IServerLogsApi,
   IServerStatsApi,
   ITagsApi,
+  ITenantsApi,
   ITenantSettingsApi,
   ITestEmailApi,
   IUserPreferencesApi,
@@ -90,6 +92,7 @@ public partial class PyTrainApi(
   public IServerStatsApi ServerStats => this;
   public IServerVersionApi ServerVersion => this;
   public ITagsApi Tags => this;
+  public ITenantsApi Tenants => this;
   public ITenantSettingsApi TenantSettings => this;
   public ITestEmailApi TestEmail => this;
   public IUserPreferencesApi UserPreferences => this;

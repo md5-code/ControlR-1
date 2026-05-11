@@ -102,18 +102,12 @@ public class DevicesController(
     [FromServices] IAuthorizationService authorizationService,
     [FromRoute] Guid deviceId)
   {
-    if (!User.TryGetTenantId(out var tenantId))
-    {
-      return BadRequest("Tenant ID not found.");
-    }
-
-    var device = await appDb.Devices.FirstOrDefaultAsync(x => x.Id == deviceId && x.TenantId == tenantId);
+    var device = await appDb.Devices.FirstOrDefaultAsync(x => x.Id == deviceId);
     if (device is null)
     {
       return NotFound();
     }
 
-    // Single-device operations use the resource policy directly.
     var authResult =
       await authorizationService.AuthorizeAsync(User, device, DeviceAccessByDeviceResourcePolicy.PolicyName);
     if (!authResult.Succeeded)
