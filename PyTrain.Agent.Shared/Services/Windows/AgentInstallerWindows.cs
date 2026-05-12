@@ -314,7 +314,8 @@ internal class AgentInstallerWindows(
     {
       FileName = dest,
       Arguments = args,
-      UseShellExecute = true
+      UseShellExecute = false,
+      CreateNoWindow = true
     };
     _processes.Start(psi);
     return true;

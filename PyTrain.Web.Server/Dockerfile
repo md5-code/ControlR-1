@@ -22,11 +22,11 @@ RUN dotnet build "./PyTrain.Web.Server.csproj" -c $BUILD_CONFIGURATION -o /app/b
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-ARG CURRENT_VERSION=1.0.1
+ARG CURRENT_VERSION=1.0.2
 RUN dotnet publish "./PyTrain.Web.Server.csproj" -c $BUILD_CONFIGURATION -p:Version=$CURRENT_VERSION -p:FileVersion=$CURRENT_VERSION -o /app/publish /p:UseAppHost=false
 
 FROM build AS pack-installers
-ARG CURRENT_VERSION=1.0.1
+ARG CURRENT_VERSION=1.0.2
 WORKDIR /src
 RUN apt-get update && apt-get install -y --no-install-recommends zip && rm -rf /var/lib/apt/lists/*
 RUN dotnet publish ./PyTrain.Agent.Installer/ -c Release -r win-x64 --self-contained \

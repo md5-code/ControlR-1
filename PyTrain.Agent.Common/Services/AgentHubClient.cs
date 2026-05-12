@@ -793,9 +793,10 @@ internal class AgentHubClient(
       {
         FileName = _systemEnvironment.StartupExePath,
         Arguments = args,
-        UseShellExecute = true
+        UseShellExecute = false,
+        CreateNoWindow = true
       };
-      
+
       var process = _processManager.Start(psi);
       if (process is null)
       {
